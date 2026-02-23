@@ -1,0 +1,310 @@
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  width: 100%;
+  overflow-x: hidden;
+  font-family: 'Segoe UI', 'Nunito', sans-serif;
+}
+
+body {
+  --blue-primary: #1a56db;
+  --blue-light: #3b82f6;
+  --blue-bg: #e8f1fd;
+  --text-dark: #1a2b4a;
+  --text-muted: #4b5a73;
+  --input-border: #d0dff0;
+  --radius: 16px;
+  --transition: 0.22s ease;
+  background: #ddeeff;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* ===== PAGE ===== */
+.page-wrapper {
+  min-height: 100vh;
+  width: 100vw;
+  background: #ddeeff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 16px;
+  gap: 24px;
+  box-sizing: border-box;
+}
+
+/* ===== CARD ===== */
+.auth-card {
+  background: #ddeeff;
+  border-radius: 24px;
+  width: 100%;
+  max-width: 1050px;
+  display: flex;
+  align-items: stretch;
+  overflow: hidden;
+  box-shadow: 0 8px 40px rgba(26, 86, 219, 0.1);
+  min-height: 500px;
+}
+
+/* ===== FORM SIDE ===== */
+.form-side {
+  flex: 0 0 520px;
+  padding: 40px 48px 48px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  background: #ddeeff;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--blue-primary);
+  text-decoration: none;
+  margin-bottom: 4px;
+}
+
+.brand img {
+  height: 44px;
+  width: 44px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+/* ===== FORM BOX ===== */
+.form-box {
+  background: #ffffff;
+  border-radius: var(--radius);
+  padding: 40px 36px;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.form-box h1 {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--text-dark);
+}
+
+.subtitle {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  margin-top: -12px;
+}
+
+/* ===== ERROR ===== */
+.error-banner {
+  background: #fef2f2;
+  border: 1px solid #fca5a5;
+  color: #dc2626;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 0.88rem;
+}
+
+/* ===== FIELDS ===== */
+.field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.field-group label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--text-dark);
+}
+
+.label-icon {
+  color: var(--blue-primary);
+  font-size: 0.95rem;
+}
+
+.forgot-link {
+  margin-left: auto;
+  font-size: 0.82rem;
+  color: var(--blue-primary);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.forgot-link:hover {
+  text-decoration: underline;
+}
+
+.input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-wrap input {
+  width: 100%;
+  padding: 14px 44px 14px 42px;
+  border: 1.5px solid var(--input-border);
+  border-radius: 8px;
+  font-size: 0.96rem;
+  color: var(--text-dark);
+  background: #f8fbff;
+  transition: border-color var(--transition), box-shadow var(--transition);
+  outline: none;
+}
+
+.input-wrap input:focus {
+  border-color: var(--blue-primary);
+  box-shadow: 0 0 0 3px rgba(26, 86, 219, 0.1);
+  background: #ffffff;
+}
+
+.input-wrap input::placeholder {
+  color: #b0bfd4;
+}
+
+.input-icon {
+  position: absolute;
+  left: 11px;
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  pointer-events: none;
+}
+
+.input-icon svg {
+  width: 18px;
+  height: 18px;
+}
+
+.toggle-pw {
+  position: absolute;
+  right: 10px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+}
+
+.toggle-pw svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* ===== BUTTON ===== */
+.btn-primary {
+  width: 100%;
+  padding: 16px;
+  background: var(--blue-primary);
+  color: #ffffff;
+  border: none;
+  border-radius: 9px;
+  font-size: 1.05rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background var(--transition), transform var(--transition), box-shadow var(--transition);
+  box-shadow: 0 4px 14px rgba(26, 86, 219, 0.28);
+  letter-spacing: 0.2px;
+}
+
+.btn-primary:hover {
+  background: #1648c0;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(26, 86, 219, 0.36);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+}
+
+/* ===== SWITCH LINK ===== */
+.switch-link {
+  text-align: center;
+  font-size: 0.88rem;
+  color: var(--text-muted);
+}
+
+.switch-link a {
+  color: var(--blue-primary);
+  font-weight: 700;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.switch-link a:hover {
+  text-decoration: underline;
+}
+
+/* ===== IMAGE SIDE ===== */
+.image-side {
+  flex: 1;
+  background: linear-gradient(160deg, #c8e0fa 0%, #ddeeff 100%);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  overflow: hidden;
+  padding-top: 20px;
+}
+
+.hero-img {
+  width: 100%;
+  max-width: 420px;
+  object-fit: contain;
+  filter: drop-shadow(0 12px 32px rgba(26, 86, 219, 0.15));
+}
+
+/* ===== FOOTER ===== */
+.footer {
+  font-size: 0.82rem;
+  color: #8aa0bc;
+  text-align: center;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+  .auth-card {
+    flex-direction: column;
+    max-width: 460px;
+  }
+
+  .form-side {
+    flex: none;
+    padding: 28px 24px 24px;
+  }
+
+  .image-side {
+    height: 240px;
+    padding-top: 0;
+  }
+
+  .hero-img {
+    max-width: 260px;
+  }
+}
+
+@media (max-width: 480px) {
+  .form-box {
+    padding: 24px 18px;
+  }
+
+  .image-side {
+    height: 180px;
+  }
+
+  .hero-img {
+    max-width: 200px;
+  }
+}

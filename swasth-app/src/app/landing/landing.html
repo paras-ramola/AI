@@ -1,0 +1,118 @@
+<!-- ===== NAVBAR ===== -->
+<nav class="navbar">
+  <div class="nav-container">
+    
+    <a class="brand" href="#"><img src="assets/logo_icon.png">
+        Swasth</a>
+    <ul class="nav-links">
+      <li><a href="#" class="active">Home</a></li>
+      <li><a href="#features">Features</a></li>
+      <li><a href="#about">About</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+  </div>
+</nav>
+
+<!-- ===== HERO SECTION ===== -->
+<section class="hero">
+  <div class="hero-content">
+    <div class="hero-text">
+      <h1>Your 24/7 Smart<br /><span class="highlight">Healthcare Assistant</span></h1>
+      <p>
+        Swasth is an AI-powered healthcare chatbot that provides instant medical
+        guidance, symptom analysis, and appointment assistance — anytime, anywhere.
+      </p>
+      <button class="btn-primary" (click)="onCtaClick()">Start Chatting</button>
+    </div>
+
+    <div class="hero-image">
+      <!-- Replace src with your actual doctor asset path -->
+      <img
+        src="assets/Hero_Doctor.png"
+        alt="Swasth AI Healthcare Assistant"
+        class="doctor-img"
+      />
+    </div>
+  </div>
+
+  <!-- Decorative wave -->
+  <div class="hero-wave">
+    <svg viewBox="0 0 1440 80" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+      <path
+        d="M0,40 C360,80 1080,0 1440,40 L1440,80 L0,80 Z"
+        fill="#ffffff"
+      />
+    </svg>
+  </div>
+</section>
+
+<!-- ===== FEATURES SECTION ===== -->
+<section class="features" id="features">
+  <h2>Why Choose Swasth?</h2>
+
+  <div class="feature-grid">
+    <!-- Card 1 -->
+    <div class="feature-card">
+      <div class="feature-icon">
+        <!-- Replace with your actual icon asset -->
+        <img src="assets/symp_check_icon.png" alt="Symptom Checker" />
+      </div>
+      <h3>Symptom Checker</h3>
+      <p>AI-driven symptom analysis.</p>
+    </div>
+
+    <!-- Card 2 -->
+    <div class="feature-card">
+      <div class="feature-icon">
+        <img src="assets/clock_icon.png" alt="24/7 Availability" />
+      </div>
+      <h3>24/7 Availability</h3>
+      <p>Healthcare support anytime.</p>
+    </div>
+
+    <!-- Card 3 -->
+    <div class="feature-card">
+      <div class="feature-icon">
+        <img src="assets/appointment_icon.png" alt="Appointment Booking" />
+      </div>
+      <h3>Appointment Booking</h3>
+      <p>Schedule doctor visits easily.</p>
+    </div>
+
+    <!-- Card 4 -->
+    <div class="feature-card">
+      <div class="feature-icon">
+        <img src="assets/health_tips.png" alt="Personalized Health Tips" />
+      </div>
+      <h3>Personalized Health Tips</h3>
+      <p>Tailored wellness advice.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ===== CTA SECTION ===== -->
+<section class="cta-section">
+  <div class="cta-wave-top">
+    <svg viewBox="0 0 1440 60" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M0,30 C480,60 960,0 1440,30 L1440,0 L0,0 Z" fill="#f0f6ff" />
+    </svg>
+  </div>
+
+  <div class="cta-content">
+    <h2>Take Charge of Your Health Today</h2>
+    <button class="btn-primary btn-large" (click)="onCtaClick()">
+      Get Started with Swasth
+    </button>
+  </div>
+
+  <div class="cta-wave-bottom">
+    <svg viewBox="0 0 1440 80" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M0,40 C360,0 1080,80 1440,40 L1440,80 L0,80 Z" fill="#1a56db" />
+    </svg>
+  </div>
+</section>
+
+<!-- ===== FOOTER ===== -->
+<footer class="footer">
+  <p>© 2026 Swasth Healthcare Chatbot | All Rights Reserved</p>
+</footer>

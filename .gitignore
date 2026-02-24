@@ -81,3 +81,6 @@ db.sqlite3
 # Temporary files
 *.swp
 *.swo
+
+
+*.csv

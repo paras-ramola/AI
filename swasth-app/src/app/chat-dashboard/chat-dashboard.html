@@ -1,4 +1,72 @@
-<p>chat-dashboard works!</p>
+<!--  
 <div>
     <button id="logout" (click)="onLogoutClick()">Logout </button>
+</div> -->
+
+<div class="chat-container">
+
+  <!-- HEADER -->
+  <div class="chat-header">
+    <h2>Swasth AI Assistant</h2>
+
+    <div class="header-buttons">
+      <button (click)="goHome()">Home</button>
+      <button (click)="logout()">Logout</button>
+    </div>
+  </div>
+
+  <!-- CHAT BODY -->
+  <div class="chat-body">
+
+    <div *ngFor="let msg of messages"
+         [ngClass]="msg.sender === 'user' ? 'user-msg' : 'bot-msg'">
+
+      <!-- USER MESSAGE -->
+      <div class="bubble" *ngIf="msg.sender === 'user'">
+        {{ msg.text }}
+      </div>
+
+      <!-- BOT MESSAGE -->
+      <div class="bubble" *ngIf="msg.sender === 'bot'">
+
+        <div *ngIf="msg.disease">
+          <h3>Disease: {{ msg.disease }}</h3>
+          <p><strong>Confidence:</strong> {{ msg.confidence || 'N/A' }}</p>
+          <p>{{ msg.description }}</p>
+
+          <h4>Precautions</h4>
+          <ul>
+            <li *ngFor="let p of msg.precautions">{{ p }}</li>
+          </ul>
+
+          <h4>Diet</h4>
+          <ul>
+            <li *ngFor="let d of msg.diet">{{ d }}</li>
+          </ul>
+
+          <h4>Workout</h4>
+          <ul>
+            <li *ngFor="let w of msg.workout">{{ w }}</li>
+          </ul>
+        </div>
+
+        <div *ngIf="msg.text">
+          {{ msg.text }}
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+  <!-- INPUT AREA -->
+  <div class="chat-input">
+    <input
+      [(ngModel)]="messageInput"
+      placeholder="Enter symptoms separated by comma..."
+      (keyup.enter)="sendMessage()"
+    />
+    <button (click)="sendMessage()">Send</button>
+  </div>
+
 </div>

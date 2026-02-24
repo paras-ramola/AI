@@ -10,39 +10,42 @@ import { Auth } from '../core/auth';
   imports: [CommonModule, FormsModule],
   templateUrl: './login.html',
   styleUrl: './login.css',
-   encapsulation: ViewEncapsulation.None
+  encapsulation: ViewEncapsulation.None,
 })
 export class Login {
-
-
-email: string = '';
+  email: string = '';
   password: string = '';
   errorMessage: string = '';
   showPassword: boolean = false;
 
-    constructor(private router: Router, private auth: Auth) {}//dependency injection
+  constructor(
+    private router: Router,
+    private auth: Auth,
+  ) {} //dependency injection
 
- onLogin(): void {
-  if (!this.email || !this.password) {
-    this.errorMessage = 'Please fill in all fields.';
-    return;
-  }
-
-  const loginData = {
-    email: this.email,
-    password: this.password
-  };
-
-  this.auth.login(loginData).subscribe({//.subscribe because auth.login return observable
-    next: (res) => {
-      this.auth.saveToken(res.token);
-      this.router.navigate(['/chat']);
-    },
-    error: (err) => {
-      this.errorMessage = 'Invalid credentials.';
+  onLogin(): void {
+    if (!this.email || !this.password) {
+      this.errorMessage = 'Please fill in all fields.';
+      return;
     }
-  });
-}
+
+    const loginData = {
+      email: this.email,
+      password: this.password,
+    };
+
+    this.auth.login(loginData).subscribe({
+      //.subscribe because auth.login return observable
+      next: (res) => {
+        // console.log(res);
+        this.auth.saveToken(res.token);
+        this.router.navigate(['/chat']);
+      },
+      error: (err) => {
+        this.errorMessage = 'Invalid credentials.';
+      },
+    });
+  }
 
   togglePassword(): void {
     this.showPassword = !this.showPassword;

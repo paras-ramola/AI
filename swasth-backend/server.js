@@ -1,42 +1,64 @@
 const express = require("express"); //Express helps us create a server easily.
 const cors = require("cors"); //Our backend and frontend runs on diff. ports. Browser says:->Different origin! Not allowed!”
 // So we use cors() to say: “It’s okay, allow frontend to talk to backend.”
-const { Pool } = require("pg"); //Pool is connection manager. Instead of opening new connection every time, Pool reuses them.
+const pool = require("./db"); //Pool is connection manager. Instead of opening new connection every time, Pool reuses them.
 const bcrypt = require("bcrypt"); // for password encryption.
 const jwt = require("jsonwebtoken");
+const chatRoutes = require("./routes/chatRoutes");
 
 const app = express(); //We create our server app.
 
 //  Middleware
 app.use(cors()); // Enable cross-origin requests.
 app.use(express.json()); // Whenever request comes, convert body into JSON automatically.
+app.use("/api", chatRoutes);
 
 // This connects Node to your Docker PostgreSQL.
-const pool = new Pool({
-  user: "admin",
-  host: "localhost",
-  database: "swasthdb",
-  password: "paras_admin123",
-  port: 5432,
-});
+// const pool = new Pool({
+//   user: "admin",
+//   host: "localhost",
+//   database: "swasthdb",
+//   password: "paras_admin123",
+//   port: 5432,
+// });
 
 // 5️⃣ Auto-create users table
-pool
-  .query(
-    `
-  CREATE TABLE IF NOT EXISTS users (
-    id SERIAL PRIMARY KEY,
-    email VARCHAR(255) UNIQUE NOT NULL,
-    password VARCHAR(255) NOT NULL,
-    age INT,
-    gender VARCHAR(20),
-    address TEXT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-  );
-`,
-  )
-  .then(() => console.log("Users table ready"))
-  .catch((err) => console.error("Table creation error:", err));
+async function createTables() {
+  try {
+    // Create users table first
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS users (
+        id SERIAL PRIMARY KEY,
+        email VARCHAR(255) UNIQUE NOT NULL,
+        password VARCHAR(255) NOT NULL,
+        age INT,
+        gender VARCHAR(20),
+        address TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+
+    console.log("Users table ready");
+
+    // Create chat_history table AFTER users exists
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS chat_history (
+        id SERIAL PRIMARY KEY,
+        user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+        symptoms TEXT,
+        predicted_disease TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+
+    console.log("Chat history table ready");
+  } catch (err) {
+    console.error("Table creation error:", err);
+  }
+}
+
+// Call the function
+createTables();
 
 // 6️⃣ Register API
 app.post("/register", async (req, res) => {
@@ -87,7 +109,7 @@ app.post("/login", async (req, res) => {
   res.json({ token }); //Send token to frontend. Frontend stores it in localStorage.
 });
 
-// 8️⃣ Start server
+// Start server
 app.listen(3000, () => {
   console.log("Server running on port 3000");
 });

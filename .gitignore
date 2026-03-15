@@ -84,3 +84,5 @@ db.sqlite3
 
 
 *.csv
+
+swasth-ml-services/models/

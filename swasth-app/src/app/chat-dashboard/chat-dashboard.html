@@ -1,8 +1,3 @@
-<!--  
-<div>
-    <button id="logout" (click)="onLogoutClick()">Logout </button>
-</div> -->
-
 <div class="chat-container">
 
   <!-- HEADER -->
@@ -29,44 +24,61 @@
       <!-- BOT MESSAGE -->
       <div class="bubble" *ngIf="msg.sender === 'bot'">
 
-        <div *ngIf="msg.disease">
-          <h3>Disease: {{ msg.disease }}</h3>
-          <p><strong>Confidence:</strong> {{ msg.confidence || 'N/A' }}</p>
-          <p>{{ msg.description }}</p>
+        <!-- AI PREDICTIONS -->
+        <div *ngIf="msg.predictions">
 
-          <h4>Precautions</h4>
+          <h3>Possible Diseases</h3>
+
+          <div *ngFor="let p of msg.predictions; let i = index">
+
+            <p>
+              <strong>{{i + 1}}. {{p.disease}}</strong>
+              ({{ (p.probability * 100) | number:'1.0-2' }}%)
+            </p>
+
+          </div>
+
+          <hr>
+
+          <h4 *ngIf="msg.precautions?.length">Precautions</h4>
           <ul>
             <li *ngFor="let p of msg.precautions">{{ p }}</li>
           </ul>
 
-          <h4>Diet</h4>
+          <h4 *ngIf="msg.diet?.length">Diet</h4>
           <ul>
             <li *ngFor="let d of msg.diet">{{ d }}</li>
           </ul>
 
-          <h4>Workout</h4>
+          <h4 *ngIf="msg.workout?.length">Workout</h4>
           <ul>
             <li *ngFor="let w of msg.workout">{{ w }}</li>
           </ul>
+
         </div>
 
+        <!-- NORMAL TEXT MESSAGE -->
         <div *ngIf="msg.text">
           {{ msg.text }}
         </div>
 
       </div>
+
     </div>
 
   </div>
 
   <!-- INPUT AREA -->
   <div class="chat-input">
+
     <input
       [(ngModel)]="messageInput"
       placeholder="Enter symptoms separated by comma..."
       (keyup.enter)="sendMessage()"
     />
+
     <button (click)="sendMessage()">Send</button>
+
   </div>
 
 </div>

@@ -85,7 +85,10 @@ db.sqlite3
 
 *.csv
 
-
+Datasets
 swasth-ml-services/models/
 
 *.cbm
+*.pkl
+
+catboost_info/

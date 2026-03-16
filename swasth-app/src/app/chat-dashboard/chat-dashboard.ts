@@ -37,15 +37,13 @@ export class ChatDashboard {
 
     this.chatService.sendSymptoms(symptomsArray).subscribe(
       (res: any) => {
-        console.log(res);
+        console.log('API Response:', res);
+
+        const predictions = res.predictions;
+
         this.messages.push({
           sender: 'bot',
-          disease: res.disease,
-          confidence: res.confidence,
-          description: res.description,
-          precautions: res.precautions,
-          diet: res.diet,
-          workout: res.workout,
+          predictions: predictions,
         });
       },
       (err) => {

@@ -4,7 +4,6 @@
 </div> -->
 
 <div class="chat-container">
-
   <!-- HEADER -->
   <div class="chat-header">
     <h2>Swasth AI Assistant</h2>
@@ -17,10 +16,7 @@
 
   <!-- CHAT BODY -->
   <div class="chat-body">
-
-    <div *ngFor="let msg of messages"
-         [ngClass]="msg.sender === 'user' ? 'user-msg' : 'bot-msg'">
-
+    <div *ngFor="let msg of messages" [ngClass]="msg.sender === 'user' ? 'user-msg' : 'bot-msg'">
       <!-- USER MESSAGE -->
       <div class="bubble" *ngIf="msg.sender === 'user'">
         {{ msg.text }}
@@ -28,35 +24,22 @@
 
       <!-- BOT MESSAGE -->
       <div class="bubble" *ngIf="msg.sender === 'bot'">
+        <div *ngIf="msg.predictions">
+          <h3>Possible Diseases</h3>
 
-        <div *ngIf="msg.disease">
-          <h3>Disease: {{ msg.disease }}</h3>
-          <p><strong>Confidence:</strong> {{ msg.confidence || 'N/A' }}</p>
-          <p>{{ msg.description }}</p>
-
-          <h4>Precautions</h4>
-          <ul>
-            <li *ngFor="let p of msg.precautions">{{ p }}</li>
-          </ul>
-
-          <h4>Diet</h4>
-          <ul>
-            <li *ngFor="let d of msg.diet">{{ d }}</li>
-          </ul>
-
-          <h4>Workout</h4>
-          <ul>
-            <li *ngFor="let w of msg.workout">{{ w }}</li>
-          </ul>
+          <div *ngFor="let p of msg.predictions; let i = index">
+            <p>
+              <strong>{{ i + 1 }}. {{ p.disease }}</strong>
+              — {{ p.confidence * 100 | number: '1.0-2' }}%
+            </p>
+          </div>
         </div>
 
         <div *ngIf="msg.text">
           {{ msg.text }}
         </div>
-
       </div>
     </div>
-
   </div>
 
   <!-- INPUT AREA -->
@@ -68,5 +51,4 @@
     />
     <button (click)="sendMessage()">Send</button>
   </div>
-
 </div>

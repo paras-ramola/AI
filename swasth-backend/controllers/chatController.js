@@ -28,14 +28,16 @@ exports.chatPredict = async (req, res) => {
       { symptoms }
     );
 
-    const { disease, confidence } = mlResponse.data;
+   const predictions = mlResponse.data.predictions;
 
-    await pool.query(
-      "INSERT INTO chat_history (user_id, symptoms, predicted_disease) VALUES ($1, $2, $3)",
-      [userId, symptoms.join(","), disease]
-    );
+await pool.query(
+  "INSERT INTO chat_history (user_id, symptoms, predicted_disease) VALUES ($1, $2, $3)",
+  [userId, symptoms.join(","), predictions[0].disease]
+);
 
-    res.json({ disease, confidence });
+res.json({
+  predictions: predictions
+});
 
   } catch (error) {
     console.error("FULL ERROR:", error);

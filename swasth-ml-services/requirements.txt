@@ -4,3 +4,10 @@ flask
 seaborn
 scikit-learn
 flask-cors
+sentence-transformers
+requests
+ollama
+requests
+uuid
+google-generativeai
+python-dotenv

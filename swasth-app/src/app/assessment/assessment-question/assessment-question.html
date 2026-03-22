@@ -1,0 +1,65 @@
+<div class="page">
+
+  <!-- Header -->
+  <div class="header">
+    <span class="logo">Swasth</span>
+    <div class="header-actions">
+      <button class="btn-ghost" (click)="goHome()">Home</button>
+      <button class="btn-ghost" (click)="logout()">Logout</button>
+    </div>
+  </div>
+
+  <div class="question-container">
+
+    <!-- Progress bar -->
+    <div class="progress-section">
+      <div class="progress-bar">
+        <div class="progress-fill" [style.width.%]="progressPercent"></div>
+      </div>
+      <span class="progress-text">Question {{ questionsAsked }} of {{ maxQuestions }}</span>
+    </div>
+
+    <!-- Loading state -->
+    <div class="loading" *ngIf="isLoading">
+      <div class="spinner"></div>
+      <p>Analysing your answer...</p>
+    </div>
+
+    <!-- Question card -->
+    <div class="question-card" *ngIf="!isLoading">
+
+      <div class="question-icon">🩺</div>
+      <h2 class="question-text">{{ question }}</h2>
+
+      <div class="options">
+        <button
+          *ngFor="let option of options"
+          class="option-btn"
+          [ngClass]="{
+            'option-yes':     option === 'Yes',
+            'option-no':      option === 'No',
+            'option-notsure': option === 'Not sure'
+          }"
+          (click)="answer(option)"
+        >
+          {{ option }}
+        </button>
+      </div>
+
+    </div>
+
+    <!-- Error -->
+    <div class="error-msg" *ngIf="errorMessage">{{ errorMessage }}</div>
+
+    <!-- Confirmed symptoms -->
+    <div class="confirmed-summary" *ngIf="confirmedSymptoms.length > 0">
+      <p class="summary-label">Confirmed so far:</p>
+      <div class="summary-chips">
+        <span class="summary-chip" *ngFor="let sym of confirmedSymptoms">
+          {{ formatSymptom(sym) }}
+        </span>
+      </div>
+    </div>
+
+  </div>
+</div>

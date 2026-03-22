@@ -1,0 +1,522 @@
+{
+  "metadata": {
+    "version": "2.0",
+    "created": "2026-03-18",
+    "description": "Comprehensive Medical Emergency Knowledge Base for AI Triage Chatbot",
+    "source_standards": ["ESI (Emergency Severity Index)", "AHA Guidelines", "WHO ICD-11", "ACEP Triage Protocols"],
+    "esi_scale": {
+      "1": "Immediate - Life-threatening, requires immediate intervention",
+      "2": "Emergent - High risk, severe pain/distress, requires rapid evaluation",
+      "3": "Urgent - Multiple resources needed, stable vitals",
+      "4": "Less Urgent - Single resource needed",
+      "5": "Non-Urgent - No resources needed"
+    }
+  },
+
+  "life_threatening": [
+    {
+      "condition": "Cardiac Arrest",
+      "symptoms": ["no pulse", "not breathing", "unresponsive", "unconscious", "collapsed suddenly", "no signs of life"],
+      "system": "cardiac",
+      "esi_level": 1,
+      "immediate_actions": ["Call 911 immediately", "Start CPR", "Use AED if available"],
+      "time_critical": true,
+      "golden_window_minutes": 4
+    },
+    {
+      "condition": "Anaphylaxis",
+      "symptoms": ["throat swelling", "difficulty breathing", "hives all over body", "severe allergic reaction", "face swelling", "tongue swelling", "dizziness after allergen exposure", "sudden drop in blood pressure", "rapid weak pulse"],
+      "system": "allergy/immunology",
+      "esi_level": 1,
+      "immediate_actions": ["Call 911", "Administer epinephrine (EpiPen) if available", "Lay patient flat with legs elevated"],
+      "time_critical": true,
+      "golden_window_minutes": 10
+    },
+    {
+      "condition": "Respiratory Arrest",
+      "symptoms": ["not breathing", "blue lips", "cyanosis", "unconscious", "gasping only", "agonal breathing"],
+      "system": "respiratory",
+      "esi_level": 1,
+      "immediate_actions": ["Call 911", "Begin rescue breathing", "Start CPR if no pulse"],
+      "time_critical": true,
+      "golden_window_minutes": 4
+    },
+    {
+      "condition": "Massive Hemorrhage / Uncontrolled Bleeding",
+      "symptoms": ["spurting blood", "uncontrolled bleeding", "blood soaking through multiple bandages", "pale and clammy", "loss of consciousness from blood loss", "large open wound"],
+      "system": "trauma/vascular",
+      "esi_level": 1,
+      "immediate_actions": ["Call 911", "Apply firm direct pressure", "Use tourniquet if limb involved", "Do not remove embedded objects"],
+      "time_critical": true,
+      "golden_window_minutes": 5
+    },
+    {
+      "condition": "Tension Pneumothorax",
+      "symptoms": ["sudden severe chest pain", "absent breath sounds one side", "tracheal deviation", "neck vein distension", "severe respiratory distress", "hypotension with breathing difficulty"],
+      "system": "respiratory/trauma",
+      "esi_level": 1,
+      "immediate_actions": ["Call 911 immediately", "Keep patient sitting upright", "Do not attempt home treatment"],
+      "time_critical": true,
+      "golden_window_minutes": 5
+    },
+    {
+      "condition": "Aortic Dissection",
+      "symptoms": ["tearing ripping chest pain", "pain radiating to back between shoulder blades", "unequal blood pressure in arms", "sudden severe onset chest pain", "pulsating abdominal mass"],
+      "system": "vascular/cardiac",
+      "esi_level": 1,
+      "immediate_actions": ["Call 911 immediately", "Keep patient still and calm", "Do not give food or water"],
+      "time_critical": true,
+      "golden_window_minutes": 30
+    },
+    {
+      "condition": "Status Epilepticus",
+      "symptoms": ["seizure lasting more than 5 minutes", "repeated seizures without recovery", "continuous convulsions", "no return to consciousness between seizures"],
+      "system": "neurology",
+      "esi_level": 1,
+      "immediate_actions": ["Call 911", "Protect head from injury", "Turn patient on side", "Do not restrain or put anything in mouth"],
+      "time_critical": true,
+      "golden_window_minutes": 5
+    },
+    {
+      "condition": "Drowning / Near Drowning",
+      "symptoms": ["pulled from water unconscious", "not breathing after water submersion", "coughing up water", "altered consciousness after water submersion"],
+      "system": "respiratory/trauma",
+      "esi_level": 1,
+      "immediate_actions": ["Call 911", "Begin CPR if not breathing", "Keep warm to prevent hypothermia"],
+      "time_critical": true,
+      "golden_window_minutes": 4
+    },
+    {
+      "condition": "Severe Traumatic Brain Injury",
+      "symptoms": ["unconscious after head trauma", "skull deformity", "clear fluid from ears or nose", "unequal pupils after head injury", "seizure after head trauma", "not responsive after head blow"],
+      "system": "neurology/trauma",
+      "esi_level": 1,
+      "immediate_actions": ["Call 911", "Do not move neck if spinal injury suspected", "Keep airway open", "Do not remove helmet if worn"],
+      "time_critical": true,
+      "golden_window_minutes": 30
+    },
+    {
+      "condition": "Eclampsia",
+      "symptoms": ["seizure during pregnancy", "severe headache in pregnancy", "vision changes in pregnancy", "swelling face and hands in pregnancy", "seizure after recent delivery"],
+      "system": "obstetrics/neurology",
+      "esi_level": 1,
+      "immediate_actions": ["Call 911 immediately", "Lay on left side", "Protect from injury during seizure"],
+      "time_critical": true,
+      "golden_window_minutes": 10
+    },
+    {
+      "condition": "Severe Burns (>20% BSA or Airway Burns)",
+      "symptoms": ["burns covering large body area", "burns on face or airway", "singed eyebrows or nasal hair", "hoarse voice after burn", "chemical burn to eyes or body", "electrical burn"],
+      "system": "trauma/burn",
+      "esi_level": 1,
+      "immediate_actions": ["Call 911", "Cool burn with cool water only (not ice)", "Cover loosely with clean cloth", "Remove jewelry near burn area"],
+      "time_critical": true,
+      "golden_window_minutes": 30
+    },
+    {
+      "condition": "Spinal Cord Injury with Paralysis",
+      "symptoms": ["inability to move limbs after trauma", "numbness below level of injury", "loss of bladder control after trauma", "neck pain with tingling in arms after accident"],
+      "system": "neurology/trauma",
+      "esi_level": 1,
+      "immediate_actions": ["Call 911", "Do not move patient", "Stabilize head and neck in neutral position"],
+      "time_critical": true,
+      "golden_window_minutes": 60
+    }
+  ],
+
+  "critical": [
+    {
+      "condition": "Stroke (Ischemic or Hemorrhagic)",
+      "symptoms": ["face drooping", "slurred speech", "arm weakness", "sudden confusion", "sudden severe headache", "sudden vision loss", "sudden trouble walking", "numbness one side of body", "word finding difficulty"],
+      "system": "neurology",
+      "esi_level": 2,
+      "mnemonic": "FAST - Face drooping, Arm weakness, Speech difficulty, Time to call 911",
+      "immediate_actions": ["Call 911 immediately", "Note exact time symptoms started", "Do not give food or water"],
+      "time_critical": true,
+      "golden_window_minutes": 60
+    },
+    {
+      "condition": "Pulmonary Embolism",
+      "symptoms": ["sudden chest pain", "shortness of breath at rest", "coughing up blood", "rapid heart rate", "leg pain and swelling", "feeling of doom", "lightheadedness", "low oxygen after recent travel or surgery"],
+      "system": "pulmonary/vascular",
+      "esi_level": 2,
+      "immediate_actions": ["Call 911", "Keep patient calm and still", "Sit upright to ease breathing"],
+      "time_critical": true,
+      "golden_window_minutes": 60
+    },
+    {
+      "condition": "Acute Myocardial Infarction (Heart Attack)",
+      "symptoms": ["severe chest pain", "crushing chest pressure", "chest pain radiating to arm", "chest pain with jaw pain", "chest pain with sweating", "nausea with chest pain", "shortness of breath with chest discomfort", "pain in left arm", "indigestion-like severe discomfort not relieved by antacids"],
+      "system": "cardiac",
+      "esi_level": 2,
+      "immediate_actions": ["Call 911", "Chew aspirin 325mg if not allergic and no bleeding", "Loosen tight clothing", "Keep patient calm"],
+      "time_critical": true,
+      "golden_window_minutes": 90
+    },
+    {
+      "condition": "Severe Asthma Attack",
+      "symptoms": ["unable to speak in full sentences due to breathing", "blue lips or fingernails", "silent chest (no wheezing)", "sitting upright unable to lie down", "not responding to inhaler", "respiratory rate over 30"],
+      "system": "respiratory",
+      "esi_level": 2,
+      "immediate_actions": ["Call 911", "Use rescue inhaler immediately", "Sit upright leaning slightly forward", "Keep calm and loosen clothing"],
+      "time_critical": true,
+      "golden_window_minutes": 20
+    },
+    {
+      "condition": "Septic Shock",
+      "symptoms": ["fever with confusion", "very low blood pressure", "rapid breathing with infection", "cold clammy skin with fever", "altered mental status with suspected infection", "mottled skin"],
+      "system": "infectious/systemic",
+      "esi_level": 2,
+      "immediate_actions": ["Call 911", "Keep patient warm", "Do not give fluids by mouth if altered consciousness"],
+      "time_critical": true,
+      "golden_window_minutes": 60
+    },
+    {
+      "condition": "Diabetic Ketoacidosis (DKA)",
+      "symptoms": ["fruity breath odor", "rapid deep breathing (Kussmaul)", "severe abdominal pain in diabetic", "vomiting in known diabetic", "altered consciousness in diabetic", "extreme thirst and urination with confusion"],
+      "system": "endocrine",
+      "esi_level": 2,
+      "immediate_actions": ["Call 911", "Do not give insulin without medical guidance", "Keep patient conscious and hydrated if able to swallow"],
+      "time_critical": true,
+      "golden_window_minutes": 120
+    },
+    {
+      "condition": "Hypoglycemic Coma",
+      "symptoms": ["unconscious diabetic", "seizure in diabetic", "very low blood sugar with unresponsiveness", "cold sweats and unresponsive in known diabetic"],
+      "system": "endocrine",
+      "esi_level": 2,
+      "immediate_actions": ["Call 911", "If conscious: give sugar (juice, glucose gel)", "If unconscious: do NOT give anything by mouth", "Place in recovery position"],
+      "time_critical": true,
+      "golden_window_minutes": 15
+    },
+    {
+      "condition": "Meningitis / Meningococcal Septicemia",
+      "symptoms": ["stiff neck with fever and headache", "non-blanching rash", "petechiae", "severe headache with fever and light sensitivity", "photophobia with neck stiffness", "rash that doesn't fade with pressure"],
+      "system": "neurology/infectious",
+      "esi_level": 2,
+      "immediate_actions": ["Call 911 immediately", "Keep patient in dark quiet room", "Do not delay for rash photos"],
+      "time_critical": true,
+      "golden_window_minutes": 60
+    },
+    {
+      "condition": "Ectopic Pregnancy Rupture",
+      "symptoms": ["severe lower abdominal pain in pregnancy", "shoulder tip pain with abdominal pain", "collapse in early pregnancy", "vaginal bleeding with severe abdominal pain in pregnancy", "positive pregnancy test with sudden severe pain"],
+      "system": "obstetrics/gynecology",
+      "esi_level": 2,
+      "immediate_actions": ["Call 911 immediately", "Lay patient flat", "Do not give pain relief without medical guidance"],
+      "time_critical": true,
+      "golden_window_minutes": 30
+    },
+    {
+      "condition": "Acute Angle-Closure Glaucoma",
+      "symptoms": ["sudden severe eye pain", "sudden vision loss with eye pain", "nausea and vomiting with eye pain", "seeing halos around lights", "hard red eye", "headache with eye pain and vomiting"],
+      "system": "ophthalmology",
+      "esi_level": 2,
+      "immediate_actions": ["Seek emergency eye care immediately", "Do not lie flat", "Avoid dim lighting"],
+      "time_critical": true,
+      "golden_window_minutes": 120
+    },
+    {
+      "condition": "Hypertensive Emergency",
+      "symptoms": ["blood pressure above 180/120", "severe headache with very high blood pressure", "chest pain with very high blood pressure", "confusion with very high blood pressure", "vision changes with very high blood pressure", "nosebleed with extreme hypertension"],
+      "system": "cardiac/vascular",
+      "esi_level": 2,
+      "immediate_actions": ["Call 911", "Have patient rest quietly", "Do not give extra blood pressure medication without guidance"],
+      "time_critical": true,
+      "golden_window_minutes": 60
+    },
+    {
+      "condition": "Acute Liver Failure",
+      "symptoms": ["yellowing skin with confusion", "sudden jaundice with mental changes", "abdominal distension with jaundice", "bruising easily with jaundice", "dark urine with confusion"],
+      "system": "hepatology/gastroenterology",
+      "esi_level": 2,
+      "immediate_actions": ["Call 911", "Keep patient calm and still", "List all medications and supplements taken"],
+      "time_critical": true,
+      "golden_window_minutes": 240
+    },
+    {
+      "condition": "Testicular Torsion",
+      "symptoms": ["sudden severe testicle pain", "swollen testicle one side", "nausea and vomiting with scrotal pain", "testicle positioned abnormally high"],
+      "system": "urology",
+      "esi_level": 2,
+      "immediate_actions": ["Go to ER immediately", "Do not apply heat", "Time-critical for organ salvage"],
+      "time_critical": true,
+      "golden_window_minutes": 360
+    },
+    {
+      "condition": "Carbon Monoxide Poisoning",
+      "symptoms": ["headache in multiple people in same building", "confusion and headache indoors", "nausea headache worse indoors better outdoors", "multiple family members sick at same time", "headache near gas appliances"],
+      "system": "toxicology/respiratory",
+      "esi_level": 2,
+      "immediate_actions": ["Exit building immediately", "Call 911", "Do not re-enter building", "Open all windows"],
+      "time_critical": true,
+      "golden_window_minutes": 30
+    }
+  ],
+
+  "urgent": [
+    {
+      "condition": "Appendicitis",
+      "symptoms": ["pain starting around navel moving to lower right abdomen", "nausea and vomiting with abdominal pain", "fever with abdominal pain", "pain worse with movement", "rebound tenderness lower right abdomen"],
+      "system": "gastroenterology/surgery",
+      "esi_level": 3,
+      "immediate_actions": ["Go to ER", "Do not eat or drink", "Do not use heating pad on abdomen"],
+      "time_critical": false
+    },
+    {
+      "condition": "Kidney Stones (Severe)",
+      "symptoms": ["severe flank pain coming in waves", "pain radiating to groin", "blood in urine with severe pain", "nausea and vomiting with severe back or side pain", "unable to find comfortable position"],
+      "system": "urology/nephrology",
+      "esi_level": 3,
+      "immediate_actions": ["Go to ER for pain management", "Drink water if able", "Collect any passed stones for analysis"],
+      "time_critical": false
+    },
+    {
+      "condition": "Acute Pancreatitis",
+      "symptoms": ["severe upper abdominal pain radiating to back", "nausea and vomiting with upper abdominal pain", "pain worse lying flat better leaning forward", "abdominal pain after heavy alcohol or fatty meal"],
+      "system": "gastroenterology",
+      "esi_level": 3,
+      "immediate_actions": ["Go to ER", "Do not eat or drink", "Avoid alcohol"],
+      "time_critical": false
+    },
+    {
+      "condition": "Deep Vein Thrombosis (DVT)",
+      "symptoms": ["calf swelling with pain", "warmth and redness in one leg", "leg pain worse with walking", "swollen tender leg after long travel or surgery"],
+      "system": "vascular",
+      "esi_level": 3,
+      "immediate_actions": ["Go to ER", "Do not massage the leg", "Elevate leg if comfortable"],
+      "time_critical": false
+    },
+    {
+      "condition": "Pneumonia (Severe)",
+      "symptoms": ["high fever with cough and chest pain", "coughing up green or rusty sputum", "shortness of breath with fever", "confusion with fever in elderly", "pleuritic chest pain with fever"],
+      "system": "pulmonary/infectious",
+      "esi_level": 3,
+      "immediate_actions": ["Seek urgent medical care", "Stay hydrated", "Monitor oxygen saturation if pulse oximeter available"],
+      "time_critical": false
+    },
+    {
+      "condition": "Bowel Obstruction",
+      "symptoms": ["abdominal distension with no bowel movements", "vomiting fecal material", "severe crampy abdominal pain with no gas passage", "inability to pass stool or gas for days with pain"],
+      "system": "gastroenterology/surgery",
+      "esi_level": 3,
+      "immediate_actions": ["Go to ER", "Do not eat or drink", "Do not use laxatives"],
+      "time_critical": false
+    },
+    {
+      "condition": "Corneal Abrasion or Foreign Body in Eye",
+      "symptoms": ["severe eye pain with sensation of something in eye", "inability to open eye", "tearing with eye pain", "vision blurred in one eye with pain", "chemical splash in eye"],
+      "system": "ophthalmology",
+      "esi_level": 3,
+      "immediate_actions": ["Flush eye with clean water for 15+ minutes if chemical", "Do not rub eye", "Seek urgent care"],
+      "time_critical": false
+    },
+    {
+      "condition": "Overdose / Poisoning (Conscious)",
+      "symptoms": ["known medication overdose conscious", "ingested poison awake and alert", "confused after taking unknown substances"],
+      "system": "toxicology",
+      "esi_level": 3,
+      "immediate_actions": ["Call Poison Control Center", "Go to ER", "Bring medication bottles", "Do not induce vomiting unless instructed"],
+      "time_critical": false
+    },
+    {
+      "condition": "Moderate Burns",
+      "symptoms": ["burns covering 10-20% body surface area", "deep burns smaller area", "burn with blisters over joint", "burns on hands feet or genitals"],
+      "system": "trauma/burn",
+      "esi_level": 3,
+      "immediate_actions": ["Cool with cool water 10-20 minutes", "Do not apply ice butter or toothpaste", "Cover loosely", "Seek urgent care"],
+      "time_critical": false
+    },
+    {
+      "condition": "Dehydration (Severe)",
+      "symptoms": ["unable to keep fluids down", "no urine output for 8+ hours", "extreme dizziness on standing", "sunken eyes", "dry cracked lips with confusion", "skin tent sign"],
+      "system": "general/metabolic",
+      "esi_level": 3,
+      "immediate_actions": ["Seek medical care", "Small sips of ORS if able to swallow", "Avoid sugary drinks"],
+      "time_critical": false
+    },
+    {
+      "condition": "Heat Stroke",
+      "symptoms": ["body temperature above 104F (40C)", "confusion in hot environment", "hot dry skin without sweating", "rapid heart rate in heat", "loss of consciousness in heat"],
+      "system": "environmental/systemic",
+      "esi_level": 3,
+      "immediate_actions": ["Move to cool environment immediately", "Apply ice packs to neck armpits groin", "Call 911", "Fan while misting with cool water"],
+      "time_critical": false
+    },
+    {
+      "condition": "Hypothermia",
+      "symptoms": ["temperature below 95F (35C)", "shivering stopping in cold environment", "confusion after cold exposure", "slurred speech with cold skin", "uncontrollable shivering"],
+      "system": "environmental/systemic",
+      "esi_level": 3,
+      "immediate_actions": ["Move to warm environment", "Remove wet clothing", "Cover with blankets", "Do not rub extremities", "Warm beverages if conscious"],
+      "time_critical": false
+    },
+    {
+      "condition": "Gallbladder Attack (Cholecystitis)",
+      "symptoms": ["severe right upper abdominal pain", "pain after fatty meal", "pain radiating to right shoulder", "nausea and vomiting with upper right abdominal pain", "fever with right upper abdominal pain"],
+      "system": "gastroenterology/surgery",
+      "esi_level": 3,
+      "immediate_actions": ["Seek urgent care", "Avoid fatty foods", "Do not eat or drink if surgery likely"],
+      "time_critical": false
+    },
+    {
+      "condition": "Fracture (Suspected Long Bone)",
+      "symptoms": ["deformity after trauma", "unable to bear weight after fall", "severe pain and swelling after impact", "bone visible through skin", "crepitus at injury site"],
+      "system": "orthopedics/trauma",
+      "esi_level": 3,
+      "immediate_actions": ["Immobilize the limb", "Apply ice wrapped in cloth", "Seek urgent care", "Elevate if possible"],
+      "time_critical": false
+    }
+  ],
+
+  "less_urgent": [
+    {
+      "condition": "Urinary Tract Infection (Uncomplicated)",
+      "symptoms": ["burning with urination", "frequent urination", "cloudy urine", "pelvic discomfort", "urgency to urinate"],
+      "system": "urology/infectious",
+      "esi_level": 4,
+      "immediate_actions": ["Visit urgent care or GP", "Increase fluid intake", "Avoid caffeine and alcohol"],
+      "time_critical": false
+    },
+    {
+      "condition": "Migraine",
+      "symptoms": ["throbbing headache one side", "nausea with severe headache", "light sensitivity with headache", "aura before headache", "headache worsened by activity"],
+      "system": "neurology",
+      "esi_level": 4,
+      "immediate_actions": ["Rest in dark quiet room", "Over the counter pain relief", "Hydrate", "Seek care if worst headache of life"],
+      "time_critical": false
+    },
+    {
+      "condition": "Sprain or Minor Strain",
+      "symptoms": ["swelling after twist or fall", "bruising without deformity", "pain but able to bear weight", "limited range of motion minor"],
+      "system": "orthopedics",
+      "esi_level": 4,
+      "immediate_actions": ["RICE: Rest Ice Compression Elevation", "Over the counter anti-inflammatories", "See GP if not improving in 48h"],
+      "time_critical": false
+    },
+    {
+      "condition": "Minor Laceration",
+      "symptoms": ["cut requiring stitches", "wound edges not closing", "wound from dirty object"],
+      "system": "trauma/wound care",
+      "esi_level": 4,
+      "immediate_actions": ["Apply pressure to stop bleeding", "Clean with soap and water", "Seek urgent care if deep or gaping"],
+      "time_critical": false
+    },
+    {
+      "condition": "Ear Infection (Otitis Media)",
+      "symptoms": ["ear pain with fever", "pulling at ear in child", "muffled hearing with ear pain", "ear drainage"],
+      "system": "ENT/infectious",
+      "esi_level": 4,
+      "immediate_actions": ["See GP or urgent care within 24h", "Over the counter pain relief"],
+      "time_critical": false
+    }
+  ],
+
+  "non_urgent": [
+    {
+      "condition": "Common Cold",
+      "symptoms": ["runny nose", "mild sore throat", "sneezing", "mild cough", "low grade fever"],
+      "system": "ENT/infectious",
+      "esi_level": 5,
+      "immediate_actions": ["Rest", "Hydrate", "Over the counter cold remedies", "GP if symptoms worsen or persist"],
+      "time_critical": false
+    },
+    {
+      "condition": "Mild Gastroenteritis",
+      "symptoms": ["mild diarrhea", "mild nausea", "stomach cramps mild", "vomiting once or twice"],
+      "system": "gastroenterology/infectious",
+      "esi_level": 5,
+      "immediate_actions": ["Stay hydrated with ORS", "BRAT diet", "Rest", "GP if no improvement in 72h"],
+      "time_critical": false
+    },
+    {
+      "condition": "Constipation",
+      "symptoms": ["no bowel movement for several days", "straining to pass stool", "hard stools"],
+      "system": "gastroenterology",
+      "esi_level": 5,
+      "immediate_actions": ["Increase fiber and water intake", "OTC laxative", "GP if persisting with pain"],
+      "time_critical": false
+    }
+  ],
+
+  "pediatric_specific": [
+    {
+      "condition": "Febrile Seizure",
+      "symptoms": ["seizure with high fever in child under 5", "convulsions with fever in toddler", "stiffening and shaking with fever in young child"],
+      "system": "pediatrics/neurology",
+      "esi_level": 2,
+      "immediate_actions": ["Call 911 if first seizure or lasts over 5 min", "Place child on side", "Do not restrain", "Do not put anything in mouth"],
+      "time_critical": true,
+      "golden_window_minutes": 10,
+      "age_group": "pediatric"
+    },
+    {
+      "condition": "Croup",
+      "symptoms": ["barking cough in child", "stridor breathing in child at night", "harsh seal-like cough", "hoarse voice with breathing noise in toddler"],
+      "system": "pediatrics/respiratory",
+      "esi_level": 2,
+      "immediate_actions": ["Sit child upright", "Cool mist humidifier", "Seek urgent care if stridor at rest"],
+      "time_critical": true,
+      "golden_window_minutes": 30,
+      "age_group": "pediatric"
+    },
+    {
+      "condition": "Epiglottitis",
+      "symptoms": ["sudden drooling with difficulty swallowing in child", "tripod position breathing in child", "muffled voice with high fever in child", "child refusing to swallow with high fever"],
+      "system": "pediatrics/ENT",
+      "esi_level": 1,
+      "immediate_actions": ["Call 911 immediately", "Keep child calm", "Do not examine throat", "Do not lay child flat"],
+      "time_critical": true,
+      "golden_window_minutes": 15,
+      "age_group": "pediatric"
+    },
+    {
+      "condition": "Intussusception",
+      "symptoms": ["episodic severe abdominal pain in infant", "child drawing knees to chest with pain", "red currant jelly stool in infant", "vomiting with periodic intense crying in baby"],
+      "system": "pediatrics/gastroenterology",
+      "esi_level": 2,
+      "immediate_actions": ["Go to ER immediately", "Do not feed child"],
+      "time_critical": true,
+      "golden_window_minutes": 120,
+      "age_group": "pediatric"
+    },
+    {
+      "condition": "Sudden Infant Death Syndrome (SIDS) / Infant Not Responding",
+      "symptoms": ["infant not breathing", "infant unresponsive", "blue infant", "infant found not moving in crib"],
+      "system": "pediatrics",
+      "esi_level": 1,
+      "immediate_actions": ["Call 911 immediately", "Begin infant CPR", "Do not shake infant"],
+      "time_critical": true,
+      "golden_window_minutes": 4,
+      "age_group": "pediatric"
+    }
+  ],
+
+  "mental_health_emergencies": [
+    {
+      "condition": "Active Suicidal Ideation with Plan",
+      "symptoms": ["expressing wish to die with a plan", "acquired means to harm self", "saying goodbye giving away possessions", "stating specific method to end life"],
+      "system": "psychiatry",
+      "esi_level": 1,
+      "immediate_actions": ["Call 911 or crisis line 988 (US)", "Do not leave person alone", "Remove access to means", "Stay calm and listen"],
+      "time_critical": true,
+      "crisis_line": "988 Suicide and Crisis Lifeline"
+    },
+    {
+      "condition": "Acute Psychosis",
+      "symptoms": ["hallucinations with agitation", "paranoid delusions causing danger", "disorganized behavior with self-harm risk", "completely disconnected from reality with aggression"],
+      "system": "psychiatry",
+      "esi_level": 2,
+      "immediate_actions": ["Call 911 if dangerous", "Stay calm", "Do not argue with delusions", "Create safe environment"],
+      "time_critical": true
+    },
+    {
+      "condition": "Severe Dissociation or Panic Attack",
+      "symptoms": ["feeling of unreality", "inability to recognize environment or self", "severe panic with chest pain and faintness"],
+      "system": "psychiatry",
+      "esi_level": 3,
+      "immediate_actions": ["Ground patient with 5-4-3-2-1 sensory technique", "Calm environment", "Slow deep breathing", "Seek care if first episode"],
+      "time_critical": false
+    }
+  ]
+}

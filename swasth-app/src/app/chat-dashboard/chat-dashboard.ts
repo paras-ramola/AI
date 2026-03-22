@@ -1,68 +1,21 @@
-import { Component } from '@angular/core';
-import { Auth } from '../core/auth';
-import { ChatService } from '../services/chat.service';
-import { Router } from '@angular/router';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { Component, OnInit } from '@angular/core';
+import { Router }            from '@angular/router';
+import { CommonModule }      from '@angular/common';
 
 @Component({
-  selector: 'app-chat-dashboard',
-  imports: [CommonModule, FormsModule],
-  templateUrl: './chat-dashboard.html',
-  styleUrl: './chat-dashboard.css',
+  selector:   'app-chat-dashboard',
+  standalone: true,
+  imports:    [CommonModule],
+  template:   `
+    <div style="display:flex;align-items:center;justify-content:center;
+                height:100vh;flex-direction:column;gap:1rem;font-family:sans-serif;">
+      <p style="color:#6b7280;">Redirecting to assessment...</p>
+    </div>
+  `
 })
-export class ChatDashboard {
-  messageInput = '';
-  messages: any[] = [];
-
-  constructor(
-    private auth: Auth,
-    private chatService: ChatService,
-    private router: Router,
-  ) {}
-
-  //   onLogoutClick():void {
-  // this.auth.logout()
-
-  //   }
-  sendMessage() {
-    if (!this.messageInput.trim()) return;
-
-    this.messages.push({
-      sender: 'user',
-      text: this.messageInput,
-    });
-
-    const symptomsArray = this.messageInput.split(',').map((s) => s.trim());
-
-    this.chatService.sendSymptoms(symptomsArray).subscribe(
-      (res: any) => {
-        console.log('API Response:', res);
-
-        const predictions = res.predictions;
-
-        this.messages.push({
-          sender: 'bot',
-          predictions: predictions,
-        });
-      },
-      (err) => {
-        this.messages.push({
-          sender: 'bot',
-          text: 'Prediction failed. Please try again.',
-        });
-      },
-    );
-
-    this.messageInput = '';
-  }
-
-  logout() {
-    localStorage.removeItem('token');
-    this.router.navigate(['/']);
-  }
-
-  goHome() {
-    this.router.navigate(['/']);
+export class ChatDashboard implements OnInit {
+  constructor(private router: Router) {}
+  ngOnInit(): void {
+    this.router.navigate(['/assess']);
   }
 }

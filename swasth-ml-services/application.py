@@ -16,7 +16,7 @@ from catboost import CatBoostClassifier
 from sentence_transformers import SentenceTransformer
 from sklearn.metrics.pairwise import cosine_similarity
 
-from nlp.gemini_client    import call_gemini
+from nlp.openai_client import call_openai
 from nlp.emergency_detection import detect_emergency
 from nlp.question_engine  import (
     search_symptoms_by_text,
@@ -69,7 +69,7 @@ def extract_symptoms_llm(text: str) -> list:
 Return ONLY comma separated symptoms. No explanations.
 Sentence: {text}
 Output:"""
-    result   = call_gemini(prompt)
+    result   = call_openai(prompt)
     symptoms = [s.strip() for s in result.split(",")]
     return symptoms
 
@@ -96,7 +96,7 @@ Symptom: {user_symptom}
 List: {candidates}
 Return ONLY one item from the list."""
 
-    mapped = call_gemini(prompt)
+    mapped = call_openai(prompt)
     if mapped not in candidates:
         mapped = candidates[0]
     return mapped
@@ -532,7 +532,7 @@ Write a warm, clear explanation (under 120 words) covering:
 No bullet points. No headers. Just caring natural paragraphs.
 """
 
-        explanation = call_gemini(prompt)
+        explanation = call_openai(prompt)
 
         return jsonify({
             "disease":     disease,
@@ -584,7 +584,7 @@ Respond ONLY with valid JSON:
 }}
 """
 
-        raw   = call_gemini(prompt)
+        raw   = call_openai(prompt)
         raw   = re.sub(r"```json|```", "", raw).strip()
         match = re.search(r"\{.*?\}", raw, re.DOTALL)
 

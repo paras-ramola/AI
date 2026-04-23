@@ -18,7 +18,7 @@ import pandas as pd
 import numpy as np
 import os
 from math import log2
-from nlp.gemini_client import call_gemini
+from nlp.openai_client import call_openai
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -479,7 +479,7 @@ Return ONLY the question. Nothing else.
 """
 
     try:
-        question = call_gemini(prompt, timeout=20).strip()
+        question = call_openai(prompt, timeout=20).strip()
         question = question.strip('"').strip("'")
 
         return {
@@ -490,7 +490,7 @@ Return ONLY the question. Nothing else.
         }
 
     except Exception as e:
-        print(f"Gemini question formatting failed: {e}")
+        print(f"OpenAI question formatting failed: {e}")
         readable = symptom.replace("_", " ")
         return {
             "symptom":  symptom,

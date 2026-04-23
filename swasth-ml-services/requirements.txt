@@ -1,13 +1,11 @@
 pandas
 numpy
 flask
-seaborn
-scikit-learn
 flask-cors
+scikit-learn
 sentence-transformers
+seaborn
 requests
-ollama
-requests
-uuid
-google-generativeai
+openai
 python-dotenv
+catboost

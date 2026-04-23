@@ -18,9 +18,7 @@ import json
 import re
 import os
 
-# OLLAMA_URL = "http://localhost:11434/api/generate"
-# MODEL      = "llama3.2:3b"
-from nlp.gemini_client import call_gemini
+from nlp.openai_client import call_openai
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
@@ -140,13 +138,7 @@ Return ONLY the system name. Nothing else.
 """
 
     try:
-        # response = requests.post(
-        #     OLLAMA_URL,
-        #     json={"model": MODEL, "prompt": prompt, "stream": False},
-        #     timeout=15
-        # )
-        # system = response.json()["response"].strip().lower()
-        system = call_gemini(prompt, timeout=15).strip().lower()
+        system = call_openai(prompt, timeout=15).strip().lower()
 
 
         # validate — must be a known system
@@ -327,9 +319,8 @@ Respond ONLY with valid JSON. No text outside the JSON.
 
     # ── call LLM ──────────────────────────────────────────────────────────────
     try:
-        raw_output = call_gemini(prompt, timeout=30)
+        raw_output = call_openai(prompt, timeout=30)
 
-        # raw_output = response.json()["response"].strip()
         print(f"\nStage 2 — LLM raw output:\n{raw_output}")
 
         return _parse_llm_response(raw_output)

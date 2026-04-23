@@ -91,6 +91,103 @@ KNOWN_SYSTEMS = list(KB["by_system"].keys()) + ["none"]
 
 
 # =============================================================================
+# DETERMINISTIC GUARD — runs BEFORE the LLM
+# Catches classic medically unambiguous emergency triads instantly.
+# These will NEVER be missed even if the LLM is conservative or fails.
+# =============================================================================
+
+# Each tuple: (required_symptom_set, esi_level, reason, immediate_actions)
+_HARD_COMBOS = [
+    # ── Cardiac ──────────────────────────────────────────────────────────────
+    (
+        {"sharp_chest_pain", "sweating", "shortness_of_breath"},
+        1, "Classic cardiac emergency triad — sharp chest pain + sweating + shortness of breath",
+        ["Call 911 immediately", "Chew aspirin if not allergic", "Do not drive yourself"],
+    ),
+    (
+        {"chest_pain", "sweating", "shortness_of_breath"},
+        1, "Classic cardiac emergency triad — chest pain + sweating + shortness of breath",
+        ["Call 911 immediately", "Chew aspirin if not allergic", "Do not drive yourself"],
+    ),
+    (
+        {"chest_tightness", "sweating", "shortness_of_breath"},
+        1, "Classic cardiac emergency triad — chest tightness + sweating + shortness of breath",
+        ["Call 911 immediately", "Chew aspirin if not allergic", "Do not drive yourself"],
+    ),
+    (
+        {"sharp_chest_pain", "sweating"},
+        2, "Possible cardiac emergency — chest pain with sweating",
+        ["Go to the ER now", "Call 911 if pain worsens"],
+    ),
+    (
+        {"chest_pain", "sweating"},
+        2, "Possible cardiac emergency — chest pain with sweating",
+        ["Go to the ER now", "Call 911 if pain worsens"],
+    ),
+    # ── Stroke ───────────────────────────────────────────────────────────────
+    (
+        {"slurred_speech", "facial_weakness", "arm_weakness"},
+        1, "Possible stroke — FAST signs present",
+        ["Call 911 immediately", "Note time of symptom onset"],
+    ),
+    (
+        {"slurred_speech", "weakness"},
+        2, "Possible stroke — slurred speech with weakness",
+        ["Call 911 immediately", "Note time of symptom onset"],
+    ),
+    # ── Respiratory ──────────────────────────────────────────────────────────
+    (
+        {"cyanosis", "shortness_of_breath"},
+        1, "Possible respiratory failure — cyanosis with breathlessness",
+        ["Call 911 immediately", "Sit upright", "Do not leave patient alone"],
+    ),
+    # ── Anaphylaxis ──────────────────────────────────────────────────────────
+    (
+        {"skin_rash", "difficulty_breathing"},
+        2, "Possible anaphylaxis — rash with breathing difficulty",
+        ["Call 911 immediately", "Administer epinephrine if available"],
+    ),
+    # ── Cardiac arrest ───────────────────────────────────────────────────────
+    (
+        {"loss_of_consciousness", "chest_pain"},
+        1, "Possible cardiac arrest — unconscious with chest pain",
+        ["Call 911 immediately", "Begin CPR if trained"],
+    ),
+    (
+        {"loss_of_consciousness", "sharp_chest_pain"},
+        1, "Possible cardiac arrest — unconscious with chest pain",
+        ["Call 911 immediately", "Begin CPR if trained"],
+    ),
+]
+
+
+def _deterministic_guard(normalized_symptoms: list) -> dict | None:
+    """
+    Fast rule-based check for medically unambiguous emergency combos.
+    Runs BEFORE the LLM — cannot be overridden by LLM conservative reasoning.
+
+    Returns a result dict if a hard combo matched, else None.
+    """
+    symptom_set = set(normalized_symptoms)
+
+    for required_set, esi, reason, actions in _HARD_COMBOS:
+        if required_set.issubset(symptom_set):
+            return {
+                "is_emergency":        True,
+                "esi_level":           esi,
+                "suspected_condition": "Cardiac Emergency" if "chest" in reason else None,
+                "confidence":          "high",
+                "reason":              reason,
+                "matched_flags":       list(required_set),
+                "immediate_actions":   actions,
+                "reasoning":           f"Deterministic match on: {required_set}",
+            }
+
+    return None
+
+
+
+# =============================================================================
 # STAGE 1 — SYSTEM CLASSIFIER AGENT
 # Fast call: identifies which body system is involved
 # This lets Stage 2 load only relevant rules
@@ -255,15 +352,16 @@ DECISION RULES — FOLLOW THESE STRICTLY:
            no throat swelling, no collapse" → NOT emergency
 
 2. EMERGENCY requires at least ONE of these EXPLICITLY mentioned:
-   - Cannot breathe / not breathing / choking / airway blocked
+   - Cannot breathe / not breathing / choking / airway blocked / shortness of breath WITH chest pain
    - No pulse / heart stopped / collapsed and unresponsive
    - Unconscious / not waking up
    - Seizure not stopping / repeated seizures
    - Uncontrolled bleeding / spurting blood
    - Throat swelling WITH difficulty breathing
-   - Crushing chest pain WITH sweating or arm pain
+   - Any chest pain (sharp, crushing, tight, pressure) WITH sweating, shortness of breath, or arm/jaw pain
    - Face drooping WITH arm weakness AND slurred speech (stroke)
    - High fever WITH stiff neck AND confusion (meningitis)
+   - Shortness of breath WITH sweating AND chest pain (classic cardiac triad)
 
 3. A symptom that CAN appear in an emergency is NOT the same
    as the emergency being present.
@@ -360,6 +458,17 @@ def detect_emergency(
     print(f"Raw symptoms       : {raw_symptoms}")
     print(f"Normalized symptoms: {normalized_symptoms}")
     print("="*55)
+
+    # ── Pre-LLM deterministic guard ──────────────────────────────────────────
+    # Catches classic high-confidence combos before LLM reasoning can miss them.
+    # These are medically unambiguous triads — no LLM judgment needed.
+    pre_check = _deterministic_guard(normalized_symptoms)
+    if pre_check is not None:
+        print(f"Pre-LLM guard triggered: {pre_check['reason']}")
+        pre_check["detection_method"] = "deterministic_guard"
+        pre_check["body_system"]      = "cardiac"
+        pre_check["message"]          = _build_emergency_message(pre_check)
+        return pre_check
 
     # ── Stage 1: Classify body system ────────────────────────────────────────
     body_system = _classify_body_system(user_text, raw_symptoms)
@@ -480,14 +589,23 @@ def _fallback_detection(normalized_symptoms: list) -> dict:
 
     # hardcoded high-confidence combos
     COMBOS = [
-        ({"chest_pain", "breathlessness"},          1, "Possible cardiac emergency"),
-        ({"chest_pain", "sweating"},                2, "Possible cardiac emergency"),
-        ({"slurred_speech", "weakness"},            2, "Possible stroke"),
-        ({"seizures", "high_fever"},                2, "Possible meningitis"),
-        ({"vomiting_blood", "abdominal_pain"},      2, "Possible GI emergency"),
-        ({"skin_rash", "difficulty_breathing"},     2, "Possible anaphylaxis"),
-        ({"cyanosis", "breathlessness"},            1, "Possible respiratory failure"),
-        ({"loss_of_consciousness", "chest_pain"},   1, "Possible cardiac arrest"),
+        # cardiac — cover both generic and specific normalized keys
+        ({"chest_pain", "breathlessness"},                              1, "Possible cardiac emergency"),
+        ({"sharp_chest_pain", "breathlessness"},                        1, "Possible cardiac emergency"),
+        ({"chest_pain", "sweating"},                                    2, "Possible cardiac emergency"),
+        ({"sharp_chest_pain", "sweating"},                              2, "Possible cardiac emergency"),
+        ({"chest_pain", "sweating", "shortness_of_breath"},             1, "Possible cardiac emergency — classic triad"),
+        ({"sharp_chest_pain", "sweating", "shortness_of_breath"},       1, "Possible cardiac emergency — classic triad"),
+        ({"chest_tightness", "sweating", "shortness_of_breath"},        1, "Possible cardiac emergency — classic triad"),
+        # stroke
+        ({"slurred_speech", "weakness"},                                2, "Possible stroke"),
+        # other
+        ({"seizures", "high_fever"},                                    2, "Possible meningitis"),
+        ({"vomiting_blood", "abdominal_pain"},                          2, "Possible GI emergency"),
+        ({"skin_rash", "difficulty_breathing"},                         2, "Possible anaphylaxis"),
+        ({"cyanosis", "breathlessness"},                                1, "Possible respiratory failure"),
+        ({"loss_of_consciousness", "chest_pain"},                       1, "Possible cardiac arrest"),
+        ({"loss_of_consciousness", "sharp_chest_pain"},                 1, "Possible cardiac arrest"),
     ]
 
     for rule_set, esi, reason in COMBOS:

@@ -1,13 +1,12 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule }  from '@angular/common';
-import { FormsModule }   from '@angular/forms';
 import { Router }        from '@angular/router';
 import { ChatService }   from '../../services/chat.service';
 
 @Component({
   selector:    'app-assessment-result',
   standalone:  true,
-  imports:     [CommonModule, FormsModule],
+  imports:     [CommonModule],
   templateUrl: './assessment-result.html',
   styleUrl:    './assessment-result.scss'
 })
@@ -22,11 +21,6 @@ export class AssessmentResult implements OnInit {
   sessionId:         string  = '';
 
   isLoadingExplanation = true;
-  showFeedback         = false;
-  dislikeComment       = '';
-  feedbackSubmitted    = false;
-  feedbackResponse     = '';
-  feedbackLoading      = false;
 
   constructor(
     private router:      Router,
@@ -79,82 +73,6 @@ export class AssessmentResult implements OnInit {
         console.error('Explanation error:', err);
         this.explanation          = 'Please consult a qualified doctor for proper diagnosis and treatment.';
         this.isLoadingExplanation = false;
-        this.cdr.detectChanges();
-      }
-    });
-  }
-
-  onLike(): void {
-    this.chatService.submitAssessmentFeedback({
-      result_id:         this.resultId,
-      session_id:        this.sessionId,
-      feedback_type:     'like',
-      predicted_disease: this.topDisease,
-      symptoms:          this.confirmedSymptoms,
-      confidence:        this.topConfidence
-    }).subscribe({
-      next: (res: any) => {
-        this.feedbackSubmitted = true;
-        this.feedbackResponse  = res.message || 'Thank you for your feedback.';
-        this.cdr.detectChanges();
-      },
-      error: (err) => console.error('Like feedback error:', err)
-    });
-  }
-
-  onDislike(): void {
-    this.showFeedback = true;
-    this.cdr.detectChanges();
-  }
-
-  submitDislike(): void {
-    if (!this.dislikeComment.trim()) return;
-    this.feedbackLoading = true;
-    this.cdr.detectChanges();
-
-    this.chatService.submitAssessmentFeedback({
-      result_id:         this.resultId,
-      session_id:        this.sessionId,
-      feedback_type:     'dislike',
-      user_comment:      this.dislikeComment,
-      predicted_disease: this.topDisease,
-      symptoms:          this.confirmedSymptoms,
-      confidence:        this.topConfidence
-    }).subscribe({
-      next: (res: any) => {
-        this.feedbackLoading = false;
-        console.log('Feedback response:', res);
-
-        if (res.status === 'continuing') {
-          // user was right — restart questions with same session
-          this.router.navigate(['/assess/question'], {
-            state: {
-              data: {
-                session_id:         this.sessionId,
-                confirmed_symptoms: this.confirmedSymptoms,
-                absent_symptoms:    [],
-                asked_symptoms:     [],
-                questions_asked:    0,
-                // trigger a fresh question fetch
-                question:           res.response_to_patient,
-                options:            ['Yes', 'No', 'Not sure'],
-                symptom:            '',
-                progress:           { asked: 0, max: 8 }
-              }
-            }
-          });
-          return;
-        }
-
-        // user was wrong — show explanation
-        this.feedbackSubmitted = true;
-        this.feedbackResponse  = res.response_to_patient || '';
-        this.showFeedback      = false;
-        this.cdr.detectChanges();
-      },
-      error: (err) => {
-        this.feedbackLoading = false;
-        console.error('Dislike feedback error:', err);
         this.cdr.detectChanges();
       }
     });

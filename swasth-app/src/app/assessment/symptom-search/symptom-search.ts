@@ -28,6 +28,16 @@ export class SymptomSearch implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    // Reset all state every time the user arrives at this page
+    // (Angular reuses the component instance when navigating back,
+    //  so without this, isStarting stays true and the button does nothing)
+    this.searchQuery       = '';
+    this.searchResults     = [];
+    this.selectedSymptoms  = [];
+    this.isSearching       = false;
+    this.isStarting        = false;
+    this.errorMessage      = '';
+
     this.search$.pipe(
       debounceTime(300),
       distinctUntilChanged()

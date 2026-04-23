@@ -1,0 +1,71 @@
+<div class="page">
+
+  <!-- Header -->
+  <div class="header">
+    <span class="logo">Swasth</span>
+    <div class="header-actions">
+      <button class="btn-ghost" (click)="goHome()">Home</button>
+      <button class="btn-ghost" (click)="logout()">Logout</button>
+    </div>
+  </div>
+
+  <!-- Main content -->
+  <div class="search-container">
+
+    <div class="search-header">
+      <h1>What symptoms are you experiencing?</h1>
+      <p>Type a symptom below and select from the matching list</p>
+    </div>
+
+    <!-- Search input -->
+    <div class="search-box">
+      <input
+        type="text"
+        [(ngModel)]="searchQuery"
+        (input)="onSearchInput()"
+        placeholder="e.g. fever, headache, feeling tired..."
+        class="search-input"
+        autocomplete="off"
+      />
+    </div>
+
+    <!-- Search results dropdown -->
+    <div class="search-results" *ngIf="searchResults.length > 0">
+      <div
+        *ngFor="let result of searchResults"
+        class="result-item"
+        (click)="selectSymptom(result)"
+      >
+        {{ result.display }}
+      </div>
+    </div>
+
+    <div class="searching" *ngIf="isSearching">Searching...</div>
+
+    <!-- Selected symptoms chips -->
+    <div class="selected-section" *ngIf="selectedSymptoms.length > 0">
+      <h3>Selected symptoms ({{ selectedSymptoms.length }})</h3>
+      <div class="chips">
+        <div class="chip" *ngFor="let sym of selectedSymptoms">
+          <span>{{ sym.display }}</span>
+          <button class="chip-remove" (click)="removeSymptom(sym.symptom)">×</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Error message -->
+    <div class="error-msg" *ngIf="errorMessage">
+      {{ errorMessage }}
+    </div>
+
+    <!-- Start button -->
+    <button
+      class="start-btn"
+      [disabled]="selectedSymptoms.length === 0 || isStarting"
+      (click)="startAssessment()"
+    >
+      {{ isStarting ? 'Starting...' : 'Start Assessment →' }}
+    </button>
+
+  </div>
+</div>

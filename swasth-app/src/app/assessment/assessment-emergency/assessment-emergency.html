@@ -1,0 +1,31 @@
+<div class="emergency-container">
+
+  <div class="emergency-icon">🚨</div>
+
+  <h1>Medical Emergency Detected</h1>
+
+  <div class="emergency-message">
+    {{ emergencyData?.message }}
+  </div>
+
+  <div class="actions-section" *ngIf="emergencyData?.immediate_actions?.length > 0">
+    <h3>What to do right now:</h3>
+    <ul>
+      <li *ngFor="let action of emergencyData.immediate_actions">
+        {{ action }}
+      </li>
+    </ul>
+  </div>
+
+  <div class="call-section">
+    <p>Call emergency services immediately:</p>
+    <div class="numbers">
+      <span class="number">911</span>
+      <span class="number">112</span>
+      <span class="number">999</span>
+    </div>
+  </div>
+
+  <button class="home-btn" (click)="goHome()">Return to home</button>
+
+</div>

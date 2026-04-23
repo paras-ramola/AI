@@ -1,0 +1,70 @@
+<div class="page">
+
+  <!-- Header -->
+  <div class="header">
+    <span class="logo">Swasth</span>
+    <div class="header-actions">
+      <button class="btn-ghost" (click)="goHome()">Home</button>
+      <button class="btn-ghost" (click)="logout()">Logout</button>
+    </div>
+  </div>
+
+  <div class="result-container">
+
+    <!-- Top prediction -->
+    <div class="top-result">
+      <div class="result-icon">🩺</div>
+      <h1>Assessment Complete</h1>
+
+      <div class="primary-disease">
+        <div class="disease-name">{{ topDisease }}</div>
+        <div class="confidence-bar-wrap">
+          <div class="confidence-bar">
+            <div class="confidence-fill" [style.width]="confidencePercent"></div>
+          </div>
+          <span class="confidence-label">{{ confidencePercent }} confidence</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Explanation -->
+    <div class="explanation-card">
+      <div class="loading-explanation" *ngIf="isLoadingExplanation">
+        <div class="spinner"></div>
+        <p>Generating explanation...</p>
+      </div>
+      <p *ngIf="!isLoadingExplanation">{{ explanation }}</p>
+    </div>
+
+    <!-- Other possibilities -->
+    <div class="other-predictions" *ngIf="predictions.length > 1">
+      <h3>Other possibilities</h3>
+      <div class="prediction-row" *ngFor="let p of predictions.slice(1)">
+        <span class="pred-disease">{{ p.disease }}</span>
+        <span class="pred-confidence">{{ (p.confidence * 100).toFixed(0) }}%</span>
+      </div>
+    </div>
+
+    <!-- Confirmed symptoms -->
+    <div class="symptoms-used" *ngIf="confirmedSymptoms.length > 0">
+      <h3>Symptoms assessed</h3>
+      <div class="sym-chips">
+        <span class="sym-chip" *ngFor="let s of confirmedSymptoms">
+          {{ formatSymptom(s) }}
+        </span>
+      </div>
+    </div>
+
+    <!-- Disclaimer -->
+    <div class="disclaimer">
+      ⚠️ This is not a medical diagnosis. Please consult a qualified doctor
+      for proper evaluation and treatment.
+    </div>
+
+    <!-- New assessment -->
+    <button class="new-assessment-btn" (click)="startNewAssessment()">
+      Start new assessment
+    </button>
+
+  </div>
+</div>

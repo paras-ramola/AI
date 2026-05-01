@@ -2,6 +2,7 @@ import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule }  from '@angular/common';
 import { Router }        from '@angular/router';
 import { ChatService }   from '../../services/chat.service';
+import { Auth }          from '../../core/auth';
 import { AssessmentRecommendations } from '../assessment-recommendations/assessment-recommendations';
 
 @Component({
@@ -26,7 +27,8 @@ export class AssessmentResult implements OnInit {
   constructor(
     private router:      Router,
     private chatService: ChatService,
-    private cdr:         ChangeDetectorRef
+    private cdr:         ChangeDetectorRef,
+    private auth:        Auth,
   ) {}
 
   ngOnInit(): void {
@@ -92,11 +94,15 @@ export class AssessmentResult implements OnInit {
   }
 
   logout(): void {
-    localStorage.removeItem('token');
-    this.router.navigate(['/']);
+    this.auth.logout();
+    this.router.navigate(['/login']);
   }
 
   goHome(): void {
     this.router.navigate(['/']);
+  }
+
+  goHistory(): void {
+    this.router.navigate(['/history']);
   }
 }

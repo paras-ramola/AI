@@ -326,8 +326,11 @@ def assess_answer():
         phase = get_current_phase(confirmed_symptoms, questions_asked)
         print(f"Phase: {phase.upper()}")
 
-        # ── emergency check ───────────────────────────────────────────────────
-        if confirmed_symptoms:
+        # ── emergency check — ONLY when a new symptom is confirmed ──────────
+        # Skip on "No" / "Not sure" — no new risk, saves ~2s LLM call
+        new_symptom_confirmed = (answer == "Yes")
+
+        if new_symptom_confirmed and confirmed_symptoms:
             symptom_text = " ".join(s.replace("_", " ") for s in confirmed_symptoms)
             emergency    = detect_emergency(
                 user_text           = symptom_text,

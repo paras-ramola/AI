@@ -20,13 +20,15 @@ _client = OpenAI(api_key=OPENAI_API_KEY)
 MODEL = "gpt-4o-mini"
 
 
-def call_openai(prompt: str, timeout: int = 30) -> str:
+def call_openai(prompt: str, timeout: int = 30, max_tokens: int = 500) -> str:
     """
     Send a prompt to GPT-4o-mini and return the text response.
 
     Args:
-        prompt:  The full prompt string to send.
-        timeout: Request timeout in seconds (default 30).
+        prompt:     The full prompt string to send.
+        timeout:    Request timeout in seconds (default 30).
+        max_tokens: Max tokens in the response (default 500).
+                    Use 60 for questions, 500 for explanations/emergency.
 
     Returns:
         Stripped text response from the model.
@@ -37,7 +39,7 @@ def call_openai(prompt: str, timeout: int = 30) -> str:
             {"role": "user", "content": prompt}
         ],
         temperature=0.1,
-        max_tokens=500,
+        max_tokens=max_tokens,
         timeout=timeout
     )
     return response.choices[0].message.content.strip()

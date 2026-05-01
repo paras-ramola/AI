@@ -3,6 +3,7 @@ import { Landing }       from './landing/landing';
 import { Login }         from './login/login';
 import { Register }      from './register/register';
 import { ChatDashboard } from './chat-dashboard/chat-dashboard';
+import { HistoryPage }   from './history/history';
 import { authGuard }     from './core/auth-guard';
 import { noAuthGuard }   from './core/no-auth-guard';
 
@@ -13,6 +14,11 @@ export const routes: Routes = [
   {
     path:        'chat',
     component:   ChatDashboard,
+    canActivate: [authGuard]
+  },
+  {
+    path:        'history',
+    component:   HistoryPage,
     canActivate: [authGuard]
   },
   {

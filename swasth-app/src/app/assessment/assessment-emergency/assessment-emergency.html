@@ -1,31 +1,48 @@
-<div class="emergency-container">
+<div class="page">
 
-  <div class="emergency-icon">🚨</div>
-
-  <h1>Medical Emergency Detected</h1>
-
-  <div class="emergency-message">
-    {{ emergencyData?.message }}
-  </div>
-
-  <div class="actions-section" *ngIf="emergencyData?.immediate_actions?.length > 0">
-    <h3>What to do right now:</h3>
-    <ul>
-      <li *ngFor="let action of emergencyData.immediate_actions">
-        {{ action }}
-      </li>
-    </ul>
-  </div>
-
-  <div class="call-section">
-    <p>Call emergency services immediately:</p>
-    <div class="numbers">
-      <span class="number">911</span>
-      <span class="number">112</span>
-      <span class="number">999</span>
+  <!-- Header -->
+  <div class="header">
+    <button class="logo-btn" (click)="goHome()">
+      <svg class="logo-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M12 21C12 21 3 13.5 3 8.5C3 5.42 5.42 3 8.5 3C10.24 3 11.91 3.81 13 5.08C14.09 3.81 15.76 3 17.5 3C20.58 3 23 5.42 23 8.5C23 13.5 12 21 12 21Z" fill="white" fill-opacity="0.9"/>
+        <path d="M9 10.5H11V8.5H13V10.5H15V12.5H13V14.5H11V12.5H9V10.5Z" fill="#1d4ed8"/>
+      </svg>
+      <span class="logo-text">Swasth</span>
+    </button>
+    <div class="header-actions">
+      <button class="btn-ghost" (click)="goHome()">Home</button>
     </div>
   </div>
 
-  <button class="home-btn" (click)="goHome()">Return to home</button>
+  <div class="emergency-container">
 
+    <div class="emergency-icon">🚨</div>
+
+    <h1>Medical Emergency Detected</h1>
+
+    <div class="emergency-message">
+      {{ emergencyData?.message }}
+    </div>
+
+    <div class="actions-section" *ngIf="emergencyData?.immediate_actions?.length > 0">
+      <h3>What to do right now:</h3>
+      <ul>
+        <li *ngFor="let action of emergencyData.immediate_actions">
+          {{ action }}
+        </li>
+      </ul>
+    </div>
+
+    <div class="call-section">
+      <p>Call emergency services immediately:</p>
+      <div class="numbers">
+        <span class="number">911</span>
+        <span class="number">112</span>
+        <span class="number">999</span>
+      </div>
+    </div>
+
+    <button class="home-btn" (click)="goHome()">Return to home</button>
+
+  </div>
 </div>

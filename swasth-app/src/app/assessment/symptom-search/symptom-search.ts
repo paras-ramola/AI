@@ -123,6 +123,10 @@ export class SymptomSearch implements OnInit {
     this.router.navigate(['/login']);
   }
 
+  goHistory(): void {
+    this.router.navigate(['/history']);
+  }
+
   goHome(): void {
     this.router.navigate(['/']);
   }

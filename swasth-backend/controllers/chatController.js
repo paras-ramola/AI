@@ -338,7 +338,12 @@ exports.assessAnswer = async (req, res) => {
     const mlResponse = await axios.post(`${ML_URL}/assess/answer`, req.body);
     const data       = mlResponse.data;
 
-    await pool.query(
+    // ── Respond to client immediately — do NOT await DB writes ─────────────
+    // DB is updated in the background so the user gets the next question fast.
+    res.json({ session_id, ...data });
+
+    // ── Background DB updates (fire-and-forget) ────────────────────────────
+    pool.query(
       `UPDATE assessments
        SET confirmed_symptoms=$1, absent_symptoms=$2, asked_symptoms=$3,
            questions_asked=$4, status=$5, updated_at=CURRENT_TIMESTAMP
@@ -351,27 +356,25 @@ exports.assessAnswer = async (req, res) => {
         data.status,
         session_id
       ]
-    );
+    ).catch(err => console.error("assessAnswer DB update error:", err.message));
 
     if (data.status === "predicted") {
-      await pool.query(
+      pool.query(
         `INSERT INTO chat_history (user_id, symptoms, predicted_disease, is_emergency)
          VALUES ($1, $2, $3, $4)`,
         [userId, (data.confirmed_symptoms||[]).join(","), data.predictions[0].disease, false]
-      );
+      ).catch(err => console.error("assessAnswer chat_history insert error:", err.message));
     }
 
     if (data.status === "emergency") {
-      await pool.query(
+      pool.query(
         `INSERT INTO chat_history
            (user_id, symptoms, predicted_disease, is_emergency, emergency_message)
          VALUES ($1, $2, $3, $4, $5)`,
         [userId, (data.confirmed_symptoms||[]).join(","),
          data.suspected_condition||"Emergency", true, data.message]
-      );
+      ).catch(err => console.error("assessAnswer emergency insert error:", err.message));
     }
-
-    return res.json({ session_id, ...data });
 
   } catch (error) {
     console.error("assessAnswer error:", error.message);
@@ -542,3 +545,41 @@ exports.assessRecommendations = async (req, res) => {
     res.status(500).json({ error: "Failed to generate recommendations" });
   }
 };
+
+
+// =============================================================================
+// NEW — getHistory
+// Returns last 20 completed assessments for the logged-in user
+// =============================================================================
+
+exports.getHistory = async (req, res) => {
+  try {
+    const userId = req.user?.userId;
+    if (!userId) return res.status(401).json({ error: "Unauthorized" });
+
+    const result = await pool.query(
+      `SELECT
+         ar.id,
+         ar.predicted_disease,
+         ar.confidence,
+         ar.explanation,
+         ar.feedback_type,
+         ar.created_at,
+         a.confirmed_symptoms,
+         a.selected_symptoms
+       FROM assessment_results ar
+       JOIN assessments a ON ar.assessment_id = a.id
+       WHERE ar.user_id = $1
+       ORDER BY ar.created_at DESC
+       LIMIT 20`,
+      [userId]
+    );
+
+    return res.json({ history: result.rows });
+
+  } catch (error) {
+    console.error("getHistory error:", error.message);
+    res.status(500).json({ error: "Failed to fetch history" });
+  }
+};
+

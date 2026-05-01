@@ -1,9 +1,15 @@
 <div class="page">
-
   <!-- Header -->
   <div class="header">
-    <span class="logo">Swasth</span>
+    <button class="logo-btn" (click)="goHome()">
+      <svg class="logo-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M12 21C12 21 3 13.5 3 8.5C3 5.42 5.42 3 8.5 3C10.24 3 11.91 3.81 13 5.08C14.09 3.81 15.76 3 17.5 3C20.58 3 23 5.42 23 8.5C23 13.5 12 21 12 21Z" fill="white" fill-opacity="0.9"/>
+        <path d="M9 10.5H11V8.5H13V10.5H15V12.5H13V14.5H11V12.5H9V10.5Z" fill="#1d4ed8"/>
+      </svg>
+      <span class="logo-text">Swasth</span>
+    </button>
     <div class="header-actions">
+      <button class="btn-ghost" (click)="goHistory()">&#128203; My History</button>
       <button class="btn-ghost" (click)="goHome()">Home</button>
       <button class="btn-ghost" (click)="logout()">Logout</button>
     </div>
@@ -11,7 +17,6 @@
 
   <!-- Main content -->
   <div class="search-container">
-
     <div class="search-header">
       <h1>What symptoms are you experiencing?</h1>
       <p>Type a symptom below and select from the matching list</p>
@@ -31,11 +36,7 @@
 
     <!-- Search results dropdown -->
     <div class="search-results" *ngIf="searchResults.length > 0">
-      <div
-        *ngFor="let result of searchResults"
-        class="result-item"
-        (click)="selectSymptom(result)"
-      >
+      <div *ngFor="let result of searchResults" class="result-item" (click)="selectSymptom(result)">
         {{ result.display }}
       </div>
     </div>
@@ -66,6 +67,5 @@
     >
       {{ isStarting ? 'Starting...' : 'Start Assessment →' }}
     </button>
-
   </div>
 </div>

@@ -469,3 +469,41 @@ $ease:   cubic-bezier(0.4, 0, 0.2, 1);
   line-height: 1.5;
   padding:     0 16px;
 }
+
+// ── download button ───────────────────────────────────────────────────────────
+.download-row {
+  margin-top: 20px;
+  text-align: center;
+}
+
+.download-btn {
+  display:       inline-flex;
+  align-items:   center;
+  justify-content: center;
+  gap:           0.5rem;
+  padding:       0.85rem 2rem;
+  background:    linear-gradient(135deg, #6366f1, #8b5cf6);
+  color:         #fff;
+  border:        none;
+  border-radius: 12px;
+  font-size:     0.95rem;
+  font-family:   'Inter', sans-serif;
+  font-weight:   600;
+  cursor:        pointer;
+  transition:    opacity 0.2s, transform 0.2s, box-shadow 0.2s;
+  box-shadow:    0 4px 14px rgba(99, 102, 241, 0.35);
+  min-width:     240px;
+
+  &:hover:not(:disabled) {
+    opacity:    0.92;
+    transform:  translateY(-1px);
+    box-shadow: 0 6px 20px rgba(99, 102, 241, 0.45);
+  }
+
+  &.downloading,
+  &:disabled {
+    opacity: 0.7;
+    cursor:  not-allowed;
+    transform: none;
+  }
+}

@@ -16,5 +16,6 @@ router.post("/assess/answer",          verifyToken, controller.assessAnswer);
 router.post("/assess/explain",         verifyToken, controller.assessExplain);
 router.post("/assess/feedback",        verifyToken, controller.assessFeedback);
 router.post("/assess/recommendations", verifyToken, controller.assessRecommendations);
+router.get("/history",                 verifyToken, controller.getHistory);
 
 module.exports = router;

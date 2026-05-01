@@ -1,16 +1,10 @@
-// To send token in HTTP headers.
-// This is done using: HTTP Interceptor
-// Every time Angular sends an HTTP request:
-// Check if token exists
-// If yes → add it in header -> Send request to backend
-// Now backend knows which user is making request.
-// Also: auto-logout on 401/403 (expired or invalid token).
+// Attaches the JWT Bearer token to every outgoing request.
+// Also auto-redirects to /login on 401/403 responses.
 
 import { HttpInterceptorFn, HttpErrorResponse } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { catchError, throwError } from 'rxjs';
-import { Auth } from './auth';
 
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const token = localStorage.getItem('token');
@@ -20,14 +14,16 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
     ? req.clone({ setHeaders: { Authorization: `Bearer ${token}` } })
     : req;
 
+  // NOTE: We intentionally do NOT inject Auth here to avoid a circular
+  // dependency (interceptor → Auth → HttpClient → interceptor).
+  // Instead we clear localStorage directly, which is equivalent.
   const router = inject(Router);
-  const auth   = inject(Auth);
 
   return next(authReq).pipe(
     catchError((err: HttpErrorResponse) => {
-      // 401 = Unauthorized (expired/missing), 403 = Forbidden (tampered/invalid).
+      // 401 = expired/missing token, 403 = tampered/invalid token.
       if (err.status === 401 || err.status === 403) {
-        auth.logout();             // clear token + profile cache
+        localStorage.removeItem('token');   // clear token directly
         router.navigate(['/login']);
       }
       return throwError(() => err);

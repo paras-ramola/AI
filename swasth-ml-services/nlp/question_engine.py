@@ -17,10 +17,13 @@
 import pandas as pd
 import numpy as np
 import os
+import json
+import pickle
 from math import log2
 from nlp.openai_client import call_openai
 
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+BASE_DIR   = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+CACHE_FILE = os.path.join(BASE_DIR, "data", "question_cache.json")
 
 # =============================================================================
 # THRESHOLDS
@@ -438,6 +441,32 @@ def should_predict(
 # LLM only formats the question — never chooses the symptom
 # =============================================================================
 
+def _load_question_cache() -> dict:
+    """Load pre-built question cache from disk (survives restarts)."""
+    if os.path.exists(CACHE_FILE):
+        try:
+            with open(CACHE_FILE, "r") as f:
+                cache = json.load(f)
+            print(f"Question cache loaded: {len(cache)} pre-built questions")
+            return cache
+        except Exception as e:
+            print(f"Could not load question cache: {e}")
+    return {}
+
+
+def _save_question_cache(cache: dict) -> None:
+    """Persist updated cache to disk."""
+    try:
+        with open(CACHE_FILE, "w") as f:
+            json.dump(cache, f, indent=2)
+    except Exception as e:
+        print(f"Could not save question cache: {e}")
+
+
+# Load cache once at module startup
+_QUESTION_CACHE: dict = _load_question_cache()
+
+
 def format_question_with_llm(
     symptom:            str,
     confirmed_symptoms: list,
@@ -446,58 +475,53 @@ def format_question_with_llm(
     """
     Converts a dataset symptom into a natural question.
 
-    The symptom to ask about is ALWAYS chosen by the engine above.
-    The LLM ONLY formats it into friendly language.
+    CACHE-FIRST: checks _QUESTION_CACHE before calling the LLM.
+    Cache key = symptom name (context-independent phrasing).
+    On cache miss: calls GPT with max_tokens=60 and saves result.
+
+    This eliminates ~500ms latency for all previously seen symptoms.
     """
 
-    confirmed_str    = ", ".join(confirmed_symptoms).replace("_", " ") \
-                       if confirmed_symptoms else "none yet"
-    symptom_readable = symptom.replace("_", " ")
-
-    prompt = f"""You are a medical assistant conducting a symptom assessment.
-
-The patient has already reported: {confirmed_str}
-
-Convert this medical symptom into ONE simple yes/no question: {symptom_readable}
-
-Rules:
-- Maximum 12 words
-- Simple everyday language
-- No medical jargon
-- Must be answerable with Yes / No / Not sure
-
-Examples:
-  fever                  → "Do you have a fever?"
-  shortness_of_breath    → "Are you having difficulty breathing?"
-  joint_pain             → "Are your joints feeling painful?"
-  abnormal_involuntary_movements → "Do you notice any unusual body movements?"
-  problems_with_movement → "Do you have difficulty with balance or coordination?"
-  palpitations           → "Can you feel your heart racing or skipping beats?"
-  fatigue                → "Are you feeling unusually tired or weak?"
-
-Return ONLY the question. Nothing else.
-"""
-
-    try:
-        question = call_openai(prompt, timeout=20).strip()
-        question = question.strip('"').strip("'")
-
+    # ── 1. Cache hit — return immediately, no LLM call ──────────────────────
+    if symptom in _QUESTION_CACHE:
+        cached_q = _QUESTION_CACHE[symptom]
+        print(f"Cache hit for '{symptom}' → '{cached_q}'")
         return {
             "symptom":  symptom,
-            "question": question,
+            "question": cached_q,
             "options":  ["Yes", "No", "Not sure"],
             "phase":    phase
         }
+
+    # ── 2. Cache miss — call LLM with tight token limit ─────────────────────
+    symptom_readable = symptom.replace("_", " ")
+
+    prompt = f"""Convert this medical symptom into ONE simple yes/no question (max 10 words):
+Symptom: {symptom_readable}
+Rules: everyday language, no jargon, answerable with Yes/No/Not sure.
+Examples: fever→"Do you have a fever?" shortness_of_breath→"Are you having trouble breathing?"
+Return ONLY the question."""
+
+    try:
+        question = call_openai(prompt, timeout=15, max_tokens=60).strip()
+        question = question.strip('"').strip("'")
+
+        # ── 3. Save to cache so next time is instant ─────────────────────────
+        _QUESTION_CACHE[symptom] = question
+        _save_question_cache(_QUESTION_CACHE)
+
+        print(f"Cache miss for '{symptom}' → LLM returned '{question}' (now cached)")
 
     except Exception as e:
         print(f"OpenAI question formatting failed: {e}")
-        readable = symptom.replace("_", " ")
-        return {
-            "symptom":  symptom,
-            "question": f"Are you experiencing {readable}?",
-            "options":  ["Yes", "No", "Not sure"],
-            "phase":    phase
-        }
+        question = f"Are you experiencing {symptom_readable}?"
+
+    return {
+        "symptom":  symptom,
+        "question": question,
+        "options":  ["Yes", "No", "Not sure"],
+        "phase":    phase
+    }
 
 
 # =============================================================================

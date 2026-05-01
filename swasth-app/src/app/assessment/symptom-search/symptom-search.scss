@@ -13,10 +13,29 @@
   background:       #1d4ed8;
   color:            white;
 
-  .logo {
+  .logo-btn {
+    display:     flex;
+    align-items: center;
+    gap:         0.5rem;
+    background:  transparent;
+    border:      none;
+    cursor:      pointer;
+    padding:     0;
+    text-decoration: none;
+    &:hover .logo-text { opacity: 0.85; }
+  }
+
+  .logo-icon {
+    width:  28px;
+    height: 28px;
+    flex-shrink: 0;
+  }
+
+  .logo-text {
     font-size:   1.2rem;
     font-weight: 700;
     color:       white;
+    transition:  opacity 0.15s;
   }
 
   .header-actions {
@@ -33,6 +52,7 @@
     font-size:     0.85rem;
     cursor:        pointer;
     transition:    background 0.15s;
+    font-family:   inherit;
 
     &:hover {
       background: rgba(255,255,255,0.15);

@@ -3,6 +3,7 @@ import { CommonModule }         from '@angular/common';
 import { FormsModule }          from '@angular/forms';
 import { Router }               from '@angular/router';
 import { ChatService }          from '../../services/chat.service';
+import { Auth }                 from '../../core/auth';
 import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
 
 @Component({
@@ -24,7 +25,8 @@ export class SymptomSearch implements OnInit {
 
   constructor(
     private chatService: ChatService,
-    private router:      Router
+    private router:      Router,
+    private auth:        Auth,
   ) {}
 
   ngOnInit(): void {
@@ -117,8 +119,8 @@ export class SymptomSearch implements OnInit {
   }
 
   logout(): void {
-    localStorage.removeItem('token');
-    this.router.navigate(['/']);
+    this.auth.logout();              // clears token + UserService profile cache
+    this.router.navigate(['/login']);
   }
 
   goHome(): void {

@@ -5,6 +5,10 @@ const bcrypt  = require("bcrypt");
 const jwt     = require("jsonwebtoken");
 const chatRoutes = require("./routes/chatRoutes");
 
+// JWT secret — set JWT_SECRET in your .env (or environment) for production.
+// Never commit a real secret to source control.
+const JWT_SECRET = process.env.JWT_SECRET || 'swasth_dev_secret_change_in_prod';
+
 const app = express();
 app.use(cors());
 app.use(express.json());
@@ -160,8 +164,41 @@ app.post("/login", async (req, res) => {
   if (!validPassword) {
     return res.status(400).json({ error: "Invalid password" });
   }
-  const token = jwt.sign({ userId: user.id }, "MY_SECRET_KEY", { expiresIn: "1h" });
+  const token = jwt.sign({ userId: user.id }, JWT_SECRET, { expiresIn: "7d" });
   res.json({ token });
+});
+
+
+// ── GET /me — returns logged-in user's profile ────────────────────────────────
+const verifyToken = require("./middleware/authMiddleware");
+
+app.get("/me", verifyToken, async (req, res) => {
+  try {
+    const userId = req.user?.userId;
+    if (!userId) return res.status(401).json({ error: "Unauthorized" });
+
+    const result = await pool.query(
+      "SELECT id, email, age, gender, address FROM users WHERE id = $1",
+      [userId]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    const user = result.rows[0];
+    return res.json({
+      id:       user.id,
+      email:    user.email,
+      fullName: user.email.split("@")[0],   // derive display name from email until fullName column exists
+      age:      user.age,
+      gender:   user.gender,
+      address:  user.address
+    });
+  } catch (err) {
+    console.error("GET /me error:", err);
+    return res.status(500).json({ error: "Failed to fetch profile" });
+  }
 });
 
 app.listen(3000, () => console.log("Server running on port 3000"));

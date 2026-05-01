@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { UserService } from './user.service';
 
 @Injectable({
   providedIn: 'root',
@@ -8,10 +9,12 @@ import { Observable } from 'rxjs';
 export class Auth {
   private apiUrl = 'http://localhost:3000';
 
-  constructor(private http: HttpClient) {} //HttpClient = tool to send requests to backend.
+  constructor(
+    private http:        HttpClient,
+    private userService: UserService,
+  ) {}
 
   login(data: any): Observable<any> {
-    //it will return an observable
     return this.http.post(`${this.apiUrl}/login`, data);
   }
 
@@ -19,19 +22,59 @@ export class Auth {
     return this.http.post(`${this.apiUrl}/register`, data);
   }
 
-  saveToken(token: string) {
-    localStorage.setItem('token', token); //we store token inside local storage
+  saveToken(token: string): void {
+    localStorage.setItem('token', token);
   }
 
-  getToken() {
+  getToken(): string | null {
     return localStorage.getItem('token');
   }
 
-  logout() {
-    localStorage.removeItem('token');
+  /**
+   * Decodes the JWT payload and checks whether the `exp` claim
+   * has already passed. Returns true if expired (or unreadable).
+   */
+  isTokenExpired(): boolean {
+    const token = this.getToken();
+    if (!token) return true;
+
+    try {
+      // JWT = header.payload.signature — we only need the middle part.
+      const payloadBase64 = token.split('.')[1];
+      // atob decodes base64; replace handles URL-safe base64 chars.
+      const payload = JSON.parse(atob(payloadBase64.replace(/-/g, '+').replace(/_/g, '/')));
+      // `exp` is in seconds; Date.now() is in milliseconds.
+      return payload.exp * 1000 < Date.now();
+    } catch {
+      // If we can't decode the token it is invalid — treat as expired.
+      return true;
+    }
   }
 
+  /**
+   * Returns true only when a token is present AND not yet expired.
+   * This is the root-cause fix for "still logged in after 20 days".
+   */
   isLoggedIn(): boolean {
-    return !!this.getToken(); //!! -> It converts something into true/false.
+    if (!this.getToken()) return false;
+
+    if (this.isTokenExpired()) {
+      // Auto-clear the stale token so guards redirect correctly.
+      this.clearSession();
+      return false;
+    }
+
+    return true;
+  }
+
+  /** Full logout: remove token + wipe in-memory profile cache. */
+  logout(): void {
+    this.clearSession();
+  }
+
+  /** Internal helper used by both logout() and isLoggedIn(). */
+  private clearSession(): void {
+    localStorage.removeItem('token');
+    this.userService.clearProfile();
   }
 }

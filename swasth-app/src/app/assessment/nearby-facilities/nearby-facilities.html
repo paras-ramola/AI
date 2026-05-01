@@ -1,0 +1,76 @@
+<div class="facilities-panel">
+
+  <!-- Header row -->
+  <div class="panel-header">
+    <div class="panel-title">
+      <span class="panel-icon">📍</span>
+      <div>
+        <h3>{{ facilityLabel }}</h3>
+        <p class="panel-subtitle">Based on your assessment: <strong>{{ disease }}</strong></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Idle state — show button -->
+  <div class="panel-idle" *ngIf="state === 'idle'">
+    <p class="idle-hint">Allow location access to find healthcare facilities near you.</p>
+    <button class="find-btn" (click)="showMap()">{{ buttonLabel }}</button>
+  </div>
+
+  <!-- Locating -->
+  <div class="status-box" *ngIf="state === 'locating'">
+    <div class="status-spinner"></div>
+    <span>Getting your location…</span>
+  </div>
+
+  <!-- Loading facilities -->
+  <div class="status-box" *ngIf="state === 'loading'">
+    <div class="status-spinner"></div>
+    <span>Finding nearby facilities…</span>
+  </div>
+
+  <!-- Error -->
+  <div class="error-box" *ngIf="state === 'error'">
+    <span class="error-icon">⚠️</span>
+    <p>{{ errorMsg }}</p>
+    <button class="retry-btn" (click)="showMap()">Try again</button>
+  </div>
+
+  <!-- Map + results -->
+  <div class="map-results" *ngIf="state === 'ready'">
+
+    <!-- Leaflet map -->
+    <div class="map-wrap">
+      <div #mapContainer class="leaflet-map" id="nearby-map"></div>
+    </div>
+
+    <!-- Facility list -->
+    <div class="facility-list" *ngIf="facilities.length > 0">
+      <p class="list-count">{{ facilities.length }} facilities within 5 km</p>
+      <div
+        class="facility-row"
+        *ngFor="let f of facilities"
+      >
+        <span class="fac-icon">{{ facilityIcon(f.type) }}</span>
+        <div class="fac-info">
+          <span class="fac-name">{{ f.name }}</span>
+          <span class="fac-meta"
+            [style.color]="facilityColor(f.type)">
+            {{ f.type | titlecase }}
+          </span>
+        </div>
+        <span class="fac-dist">{{ f.distance.toFixed(1) }} km</span>
+      </div>
+    </div>
+
+    <div class="no-results" *ngIf="facilities.length === 0">
+      <p>No facilities found within 5 km. Try zooming out on the map.</p>
+    </div>
+
+    <p class="osm-credit">
+      Map data © <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a> contributors
+    </p>
+
+  </div>
+
+</div>

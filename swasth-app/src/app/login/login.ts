@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Auth } from '../core/auth';
+import { UserService } from '../core/user.service';
 
 @Component({
   selector: 'app-login',
@@ -19,8 +20,9 @@ export class Login {
   showPassword: boolean = false;
 
   constructor(
-    private router: Router,
-    private auth: Auth,
+    private router:      Router,
+    private auth:        Auth,
+    private userService: UserService,
   ) {} //dependency injection
 
   onLogin(): void {
@@ -37,9 +39,12 @@ export class Login {
     this.auth.login(loginData).subscribe({
       //.subscribe because auth.login return observable
       next: (res) => {
-        // console.log(res);
         this.auth.saveToken(res.token);
-        this.router.navigate(['/chat']);
+        // warm the user profile cache before navigating
+        this.userService.fetchProfile().subscribe({
+          next: () => this.router.navigate(['/chat']),
+          error: ()  => this.router.navigate(['/chat'])  // profile fetch fail → still proceed
+        });
       },
       error: (err) => {
         this.errorMessage = 'Invalid credentials.';

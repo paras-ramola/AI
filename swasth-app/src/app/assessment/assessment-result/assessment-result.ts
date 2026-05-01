@@ -2,11 +2,12 @@ import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule }  from '@angular/common';
 import { Router }        from '@angular/router';
 import { ChatService }   from '../../services/chat.service';
+import { AssessmentRecommendations } from '../assessment-recommendations/assessment-recommendations';
 
 @Component({
   selector:    'app-assessment-result',
   standalone:  true,
-  imports:     [CommonModule],
+  imports:     [CommonModule, AssessmentRecommendations],
   templateUrl: './assessment-result.html',
   styleUrl:    './assessment-result.scss'
 })

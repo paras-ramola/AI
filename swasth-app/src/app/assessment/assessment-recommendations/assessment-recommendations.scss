@@ -1,0 +1,471 @@
+// assessment-recommendations.scss
+// Self-contained dark cards — visible on both light and dark parent backgrounds
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+// ── colour tokens ─────────────────────────────────────────────────────────────
+$card-bg:       #1a1f2e;
+$card-surface:  #222840;
+$card-border:   rgba(255,255,255,0.08);
+$card-hover:    #1e2438;
+
+$green:  #4ade80;
+$red:    #f87171;
+$amber:  #fbbf24;
+$blue:   #60a5fa;
+$purple: #a78bfa;
+
+$t1: #f1f5f9;   // primary text  (bright on dark)
+$t2: #94a3b8;   // secondary text
+$t3: #64748b;   // muted
+
+$radius: 14px;
+$ease:   cubic-bezier(0.4, 0, 0.2, 1);
+
+// ── section wrapper ───────────────────────────────────────────────────────────
+.reco-section {
+  margin-top: 40px;
+  font-family: 'Inter', -apple-system, sans-serif;
+}
+
+// ── header ────────────────────────────────────────────────────────────────────
+.reco-header {
+  text-align:    center;
+  margin-bottom: 24px;
+}
+
+.reco-header-icon {
+  font-size:     2.4rem;
+  margin-bottom: 6px;
+}
+
+.reco-title {
+  font-size:      1.5rem;
+  font-weight:    700;
+  color:          #1e293b;
+  margin:         0 0 10px;
+  letter-spacing: -0.3px;
+}
+
+.reco-tags {
+  display:         flex;
+  justify-content: center;
+  flex-wrap:       wrap;
+  gap:             6px;
+  margin-bottom:   8px;
+}
+
+.reco-tag {
+  padding:       4px 12px;
+  border-radius: 20px;
+  font-size:     0.8rem;
+  font-weight:   500;
+  background:    #e2e8f0;
+  color:         #475569;
+  border:        1px solid #cbd5e1;
+
+  &.condition {
+    background: rgba(96,165,250,0.12);
+    color:      #2563eb;
+    border:     1px solid rgba(96,165,250,0.3);
+    font-weight: 600;
+  }
+}
+
+.reco-subtitle {
+  font-size: 0.83rem;
+  color:     #64748b;
+  margin:    0;
+}
+
+// ── cards stack ───────────────────────────────────────────────────────────────
+.reco-cards {
+  display:        flex;
+  flex-direction: column;
+  gap:            10px;
+}
+
+// ── single card ───────────────────────────────────────────────────────────────
+.reco-card {
+  background:    $card-bg;
+  border:        1px solid $card-border;
+  border-radius: $radius;
+  overflow:      hidden;
+  transition:    box-shadow 0.25s $ease, border-color 0.25s $ease;
+
+  &:hover {
+    border-color: rgba(255,255,255,0.14);
+    box-shadow:   0 4px 20px rgba(0,0,0,0.25);
+  }
+
+  &--open {
+    border-color: rgba(96,165,250,0.4);
+    box-shadow:   0 0 0 1px rgba(96,165,250,0.15),
+                  0 8px 30px rgba(0,0,0,0.3);
+  }
+}
+
+// ── trigger row ───────────────────────────────────────────────────────────────
+.reco-card-trigger {
+  display:     flex;
+  align-items: center;
+  gap:         14px;
+  padding:     16px 18px;
+  cursor:      pointer;
+  user-select: none;
+}
+
+.reco-card-icon {
+  font-size:   1.75rem;
+  flex-shrink: 0;
+  width:       42px;
+  height:      42px;
+  display:     flex;
+  align-items: center;
+  justify-content: center;
+  background:  rgba(255,255,255,0.06);
+  border-radius: 10px;
+}
+
+.reco-card-text {
+  flex:           1;
+  display:        flex;
+  flex-direction: column;
+  gap:            2px;
+  min-width:      0;
+}
+
+.reco-card-name {
+  font-size:   0.97rem;
+  font-weight: 600;
+  color:       $t1;
+}
+
+.reco-card-sub {
+  font-size: 0.78rem;
+  color:     $t2;
+}
+
+.reco-card-badge {
+  font-size:     0.72rem;
+  font-weight:   500;
+  padding:       3px 10px;
+  border-radius: 12px;
+  white-space:   nowrap;
+  background:    rgba(255,255,255,0.07);
+  color:         $t3;
+  border:        1px solid rgba(255,255,255,0.08);
+  flex-shrink:   0;
+
+  &.fetched {
+    background: rgba(74,222,128,0.1);
+    color:      $green;
+    border:     1px solid rgba(74,222,128,0.2);
+  }
+}
+
+.reco-chevron {
+  color:      $t3;
+  flex-shrink: 0;
+  transition: transform 0.3s $ease, color 0.2s;
+
+  svg { display: block; }
+
+  &.open {
+    transform: rotate(180deg);
+    color:     $blue;
+  }
+}
+
+// ── card body ─────────────────────────────────────────────────────────────────
+.reco-card-body {
+  padding:    0 18px 18px;
+  border-top: 1px solid $card-border;
+  animation:  slideDown 0.28s $ease;
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0);    }
+}
+
+// ── loading ───────────────────────────────────────────────────────────────────
+.reco-loading {
+  display:         flex;
+  flex-direction:  column;
+  align-items:     center;
+  gap:             12px;
+  padding:         28px 0;
+  color:           $t2;
+  font-size:       0.86rem;
+}
+
+.reco-spinner {
+  width:  28px;
+  height: 28px;
+  border: 2.5px solid rgba(96,165,250,0.2);
+  border-top-color: $blue;
+  border-radius:    50%;
+  animation: spin 0.75s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+// ── error ─────────────────────────────────────────────────────────────────────
+.reco-error {
+  display:     flex;
+  align-items: center;
+  gap:         8px;
+  padding:     16px 0;
+  font-size:   0.84rem;
+  color:       $red;
+}
+
+// ── content blocks ────────────────────────────────────────────────────────────
+.reco-block {
+  margin-top: 16px;
+}
+
+.reco-block-title {
+  font-size:      0.72rem;
+  font-weight:    700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom:  10px;
+
+  &.green { color: $green; }
+  &.red   { color: $red;   }
+  &.amber { color: $amber; }
+}
+
+// ── food grid ─────────────────────────────────────────────────────────────────
+.reco-food-grid {
+  display:   flex;
+  flex-wrap: wrap;
+  gap:       8px;
+}
+
+.reco-food-item {
+  display:       flex;
+  align-items:   flex-start;
+  gap:           8px;
+  padding:       9px 12px;
+  border-radius: 10px;
+  flex:          1 1 190px;
+  min-width:     0;
+
+  &.eat {
+    background: rgba(74,222,128,0.08);
+    border:     1px solid rgba(74,222,128,0.18);
+  }
+  &.avoid {
+    background: rgba(248,113,113,0.08);
+    border:     1px solid rgba(248,113,113,0.18);
+  }
+
+  .food-emoji {
+    font-size:   1.3rem;
+    flex-shrink: 0;
+    margin-top:  1px;
+  }
+
+  .food-name {
+    font-size:   0.86rem;
+    font-weight: 600;
+    color:       $t1;
+  }
+
+  .food-reason {
+    font-size:   0.76rem;
+    color:       $t2;
+    line-height: 1.35;
+    margin-top:  2px;
+  }
+}
+
+// ── tip boxes ─────────────────────────────────────────────────────────────────
+.reco-tip {
+  display:       flex;
+  align-items:   flex-start;
+  gap:           10px;
+  padding:       11px 14px;
+  border-radius: 10px;
+  margin-top:    10px;
+  font-size:     0.84rem;
+  line-height:   1.5;
+  color:         $t1;
+
+  span:first-child { font-size: 1rem; flex-shrink: 0; margin-top: 1px; }
+
+  &.blue   { background: rgba(96,165,250,0.08);  border: 1px solid rgba(96,165,250,0.2);  }
+  &.amber  { background: rgba(251,191,36,0.08);  border: 1px solid rgba(251,191,36,0.2);  }
+  &.gray   { background: rgba(148,163,184,0.07); border: 1px solid rgba(148,163,184,0.15);}
+}
+
+// ── intensity badge ───────────────────────────────────────────────────────────
+.intensity-badge {
+  display:       inline-flex;
+  align-items:   center;
+  padding:       5px 14px;
+  border-radius: 20px;
+  font-size:     0.8rem;
+  font-weight:   600;
+  margin:        14px 0 4px;
+
+  &.badge-rest     { background: rgba(248,113,113,0.12); color: $red;   border: 1px solid rgba(248,113,113,0.25); }
+  &.badge-light    { background: rgba(251,191,36,0.12);  color: $amber; border: 1px solid rgba(251,191,36,0.25);  }
+  &.badge-moderate,
+  &.badge-active   { background: rgba(74,222,128,0.12);  color: $green; border: 1px solid rgba(74,222,128,0.25);  }
+}
+
+// ── exercise list ─────────────────────────────────────────────────────────────
+.exercise-list {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.exercise-row {
+  display:         flex;
+  justify-content: space-between;
+  align-items:     center;
+  padding:         9px 13px;
+  background:      $card-surface;
+  border:          1px solid $card-border;
+  border-radius:   8px;
+
+  .ex-name {
+    font-size:   0.86rem;
+    font-weight: 500;
+    color:       $t1;
+  }
+
+  .ex-meta {
+    font-size: 0.76rem;
+    color:     $t2;
+  }
+}
+
+// ── avoid list ────────────────────────────────────────────────────────────────
+.avoid-list {
+  list-style:     none;
+  padding:        0;
+  margin:         0;
+  display:        flex;
+  flex-direction: column;
+  gap:            6px;
+
+  li {
+    font-size:   0.84rem;
+    color:       $t2;
+    padding:     7px 12px;
+    background:  rgba(248,113,113,0.06);
+    border-left: 2px solid $red;
+    border-radius: 0 8px 8px 0;
+  }
+}
+
+// ── habits list ───────────────────────────────────────────────────────────────
+.habits-list {
+  list-style:     none;
+  padding:        0;
+  margin:         0;
+  display:        flex;
+  flex-direction: column;
+  gap:            7px;
+
+  li {
+    display:     flex;
+    align-items: center;
+    gap:         8px;
+    font-size:   0.84rem;
+    color:       $t1;
+  }
+
+  .habit-dot { font-size: 0.9rem; }
+}
+
+// ── warning list ──────────────────────────────────────────────────────────────
+.warning-list {
+  list-style:     none;
+  padding:        0;
+  margin:         0;
+  display:        flex;
+  flex-direction: column;
+  gap:            6px;
+
+  li {
+    font-size:     0.84rem;
+    color:         #fca5a5;
+    padding:       8px 12px;
+    background:    rgba(248,113,113,0.08);
+    border:        1px solid rgba(248,113,113,0.2);
+    border-radius: 8px;
+
+    &::before {
+      content: '⚠ ';
+      font-size: 0.8rem;
+    }
+  }
+}
+
+// ── do / dont ─────────────────────────────────────────────────────────────────
+.do-dont {
+  display:               grid;
+  grid-template-columns: 1fr 1fr;
+  gap:                   12px;
+  margin-top:            14px;
+
+  ul {
+    list-style:     none;
+    padding:        0;
+    margin:         6px 0 0;
+    display:        flex;
+    flex-direction: column;
+    gap:            5px;
+
+    li {
+      font-size: 0.83rem;
+      color:     $t2;
+
+      &::before { margin-right: 5px; }
+    }
+  }
+
+  .do-col   ul li::before { content: '✓'; color: $green; }
+  .dont-col ul li::before { content: '✗'; color: $red;   }
+}
+
+// ── timeline ──────────────────────────────────────────────────────────────────
+.reco-timeline {
+  margin-top:  16px;
+  border-top:  1px solid $card-border;
+  padding-top: 14px;
+  display:     flex;
+  flex-direction: column;
+  gap:         8px;
+}
+
+.timeline-row {
+  display:   flex;
+  gap:       10px;
+  font-size: 0.82rem;
+  color:     $t2;
+
+  .timeline-label {
+    font-weight: 600;
+    color:       $t3;
+    min-width:   110px;
+    flex-shrink: 0;
+  }
+}
+
+// ── disclaimer ────────────────────────────────────────────────────────────────
+.reco-disclaimer {
+  text-align:  center;
+  font-size:   0.74rem;
+  color:       #94a3b8;
+  margin-top:  20px;
+  line-height: 1.5;
+  padding:     0 16px;
+}

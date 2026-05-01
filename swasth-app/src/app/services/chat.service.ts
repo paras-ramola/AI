@@ -66,4 +66,13 @@ export class ChatService {
   }): Observable<any> {
     return this.http.post(`${this.apiUrl}/assess/feedback`, payload, { headers: this.headers() });
   }
+
+  getRecommendations(payload: {
+    disease:    string;
+    confidence: number;
+    symptoms:   string[];
+    section:    'diet' | 'workout' | 'precautions';
+  }): Observable<any> {
+    return this.http.post(`${this.apiUrl}/assess/recommendations`, payload, { headers: this.headers() });
+  }
 }

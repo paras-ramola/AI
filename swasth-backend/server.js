@@ -164,4 +164,37 @@ app.post("/login", async (req, res) => {
   res.json({ token });
 });
 
+
+// ── GET /me — returns logged-in user's profile ────────────────────────────────
+const verifyToken = require("./middleware/authMiddleware");
+
+app.get("/me", verifyToken, async (req, res) => {
+  try {
+    const userId = req.user?.userId;
+    if (!userId) return res.status(401).json({ error: "Unauthorized" });
+
+    const result = await pool.query(
+      "SELECT id, email, age, gender, address FROM users WHERE id = $1",
+      [userId]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    const user = result.rows[0];
+    return res.json({
+      id:       user.id,
+      email:    user.email,
+      fullName: user.email.split("@")[0],   // derive display name from email until fullName column exists
+      age:      user.age,
+      gender:   user.gender,
+      address:  user.address
+    });
+  } catch (err) {
+    console.error("GET /me error:", err);
+    return res.status(500).json({ error: "Failed to fetch profile" });
+  }
+});
+
 app.listen(3000, () => console.log("Server running on port 3000"));

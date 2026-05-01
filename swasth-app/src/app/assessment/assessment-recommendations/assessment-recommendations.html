@@ -1,0 +1,181 @@
+<div class="reco-section">
+
+  <!-- ── Header ─────────────────────────────────────────────────────────── -->
+  <div class="reco-header">
+    <div class="reco-header-icon">🌿</div>
+    <h2 class="reco-title">Your Health Plan</h2>
+    <div class="reco-tags">
+      <span class="reco-tag condition">{{ disease }}</span>
+      <span class="reco-tag" *ngIf="userAge">Age {{ userAge }}</span>
+      <span class="reco-tag" *ngIf="userGender">{{ userGender }}</span>
+    </div>
+    <p class="reco-subtitle">Click any card below to get personalized guidance</p>
+  </div>
+
+  <!-- ── Cards ───────────────────────────────────────────────────────────── -->
+  <div class="reco-cards">
+    <div
+      *ngFor="let card of cards"
+      class="reco-card"
+      [class.reco-card--open]="isExpanded(card.key)"
+    >
+
+      <!-- Card trigger row -->
+      <div class="reco-card-trigger" (click)="toggle(card.key)">
+        <div class="reco-card-icon">{{ card.emoji }}</div>
+        <div class="reco-card-text">
+          <span class="reco-card-name">{{ card.label }}</span>
+          <span class="reco-card-sub">{{ card.tagline }}</span>
+        </div>
+        <div class="reco-card-badge" *ngIf="!fetched[card.key] && !isExpanded(card.key)">
+          Tap to load
+        </div>
+        <div class="reco-card-badge fetched" *ngIf="fetched[card.key] && !isExpanded(card.key)">
+          ✓ Ready
+        </div>
+        <span class="reco-chevron" [class.open]="isExpanded(card.key)">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </span>
+      </div>
+
+      <!-- Card body -->
+      <div class="reco-card-body" *ngIf="isExpanded(card.key)">
+
+        <!-- Loading -->
+        <div class="reco-loading" *ngIf="isLoading(card.key)">
+          <div class="reco-spinner"></div>
+          <span>Generating your {{ card.label }}…</span>
+        </div>
+
+        <!-- Error -->
+        <div class="reco-error" *ngIf="!isLoading(card.key) && hasError(card.key)">
+          <span>⚠️</span> Couldn't load recommendations. Please try again.
+        </div>
+
+        <!-- ── DIET ─────────────────────────────────────────────────────── -->
+        <ng-container *ngIf="!isLoading(card.key) && !hasError(card.key) && data[card.key] && card.key === 'diet'">
+
+          <div class="reco-block">
+            <div class="reco-block-title green">✅ Foods to Eat</div>
+            <div class="reco-food-grid">
+              <div class="reco-food-item eat" *ngFor="let item of data['diet']?.eat">
+                <span class="food-emoji">{{ item.emoji }}</span>
+                <div>
+                  <div class="food-name">{{ item.food }}</div>
+                  <div class="food-reason">{{ item.reason }}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="reco-block">
+            <div class="reco-block-title red">❌ Foods to Avoid</div>
+            <div class="reco-food-grid">
+              <div class="reco-food-item avoid" *ngFor="let item of data['diet']?.avoid">
+                <span class="food-emoji">{{ item.emoji }}</span>
+                <div>
+                  <div class="food-name">{{ item.food }}</div>
+                  <div class="food-reason">{{ item.reason }}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="reco-tip blue" *ngIf="data['diet']?.hydration">
+            <span>💧</span> {{ data['diet'].hydration }}
+          </div>
+          <div class="reco-tip amber" *ngIf="data['diet']?.meal_tip">
+            <span>🕐</span> {{ data['diet'].meal_tip }}
+          </div>
+
+        </ng-container>
+
+        <!-- ── WORKOUT ───────────────────────────────────────────────────── -->
+        <ng-container *ngIf="!isLoading(card.key) && !hasError(card.key) && data[card.key] && card.key === 'workout'">
+
+          <div class="intensity-badge" [ngClass]="intensityBadge.cls">
+            {{ intensityBadge.label }}
+          </div>
+
+          <div class="reco-block" *ngIf="data['workout']?.recommended?.length">
+            <div class="reco-block-title green">🏃 Recommended</div>
+            <div class="exercise-list">
+              <div class="exercise-row" *ngFor="let ex of data['workout']?.recommended">
+                <span class="ex-name">{{ ex.exercise }}</span>
+                <span class="ex-meta">{{ ex.duration }} · {{ ex.frequency }}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="reco-block" *ngIf="data['workout']?.avoid?.length">
+            <div class="reco-block-title red">🚫 Avoid</div>
+            <ul class="avoid-list">
+              <li *ngFor="let a of data['workout']?.avoid">{{ a }}</li>
+            </ul>
+          </div>
+
+          <div class="reco-tip gray" *ngIf="data['workout']?.note">
+            <span>ℹ️</span> {{ data['workout'].note }}
+          </div>
+
+        </ng-container>
+
+        <!-- ── PRECAUTIONS ──────────────────────────────────────────────── -->
+        <ng-container *ngIf="!isLoading(card.key) && !hasError(card.key) && data[card.key] && card.key === 'precautions'">
+
+          <div class="reco-block" *ngIf="data['precautions']?.daily?.length">
+            <div class="reco-block-title green">📋 Daily Habits</div>
+            <ul class="habits-list">
+              <li *ngFor="let d of data['precautions']?.daily">
+                <span class="habit-dot">✅</span> {{ d }}
+              </li>
+            </ul>
+          </div>
+
+          <div class="reco-block" *ngIf="data['precautions']?.warning_signs?.length">
+            <div class="reco-block-title red">🔴 Warning Signs — See a Doctor If:</div>
+            <ul class="warning-list">
+              <li *ngFor="let w of data['precautions']?.warning_signs">{{ w }}</li>
+            </ul>
+          </div>
+
+          <div class="reco-tip amber" *ngIf="data['precautions']?.when_to_seek">
+            <span>🏥</span> {{ data['precautions'].when_to_seek }}
+          </div>
+
+          <div class="do-dont" *ngIf="data['precautions']?.do?.length || data['precautions']?.dont?.length">
+            <div class="do-col">
+              <div class="reco-block-title green">✔ Do</div>
+              <ul><li *ngFor="let d of data['precautions']?.do">{{ d }}</li></ul>
+            </div>
+            <div class="dont-col">
+              <div class="reco-block-title red">✗ Don't</div>
+              <ul><li *ngFor="let d of data['precautions']?.dont">{{ d }}</li></ul>
+            </div>
+          </div>
+
+        </ng-container>
+
+        <!-- ── Timeline (all cards) ─────────────────────────────────────── -->
+        <div class="reco-timeline" *ngIf="!isLoading(card.key) && data[card.key]?.timeline">
+          <div class="timeline-row">
+            <span class="timeline-label">📅 Next 7 days</span>
+            <span>{{ data[card.key].timeline.week_1 }}</span>
+          </div>
+          <div class="timeline-row">
+            <span class="timeline-label">🔄 Long term</span>
+            <span>{{ data[card.key].timeline.long_term }}</span>
+          </div>
+        </div>
+
+      </div><!-- /card-body -->
+    </div><!-- /card -->
+  </div><!-- /cards -->
+
+  <p class="reco-disclaimer">
+    ⚕️ AI-generated guidance only — not a substitute for professional medical advice. Always consult a doctor.
+  </p>
+
+</div>

@@ -18,6 +18,7 @@ from sklearn.metrics.pairwise import cosine_similarity
 
 from nlp.openai_client import call_openai
 from nlp.emergency_detection import detect_emergency
+from nlp.recommendations_engine import generate_recommendations
 from nlp.question_engine  import (
     search_symptoms_by_text,
     get_next_symptom_to_ask,
@@ -602,6 +603,43 @@ Respond ONLY with valid JSON:
 
     except Exception as e:
         print(f"ERROR in /assess/feedback: {str(e)}")
+        return jsonify({"error": str(e)}), 500
+
+
+
+# =============================================================================
+# ENDPOINT — POST /assess/recommendations
+# =============================================================================
+
+@app.route("/assess/recommendations", methods=["POST"])
+def assess_recommendations():
+    try:
+        data       = request.get_json()
+        disease    = data.get("disease")
+        confidence = data.get("confidence", 0)
+        symptoms   = data.get("symptoms", [])
+        section    = data.get("section", "diet")   # diet | workout | precautions
+        user       = data.get("user", {})
+
+        if not disease:
+            return jsonify({"error": "No disease provided"}), 400
+
+        age    = user.get("age")
+        gender = user.get("gender")
+
+        recommendations = generate_recommendations(
+            disease    = disease,
+            symptoms   = symptoms,
+            confidence = confidence,
+            age        = age,
+            gender     = gender,
+            section    = section
+        )
+
+        return jsonify(recommendations), 200
+
+    except Exception as e:
+        print(f"ERROR in /assess/recommendations: {str(e)}")
         return jsonify({"error": str(e)}), 500
 
 

@@ -5,6 +5,10 @@ const bcrypt  = require("bcrypt");
 const jwt     = require("jsonwebtoken");
 const chatRoutes = require("./routes/chatRoutes");
 
+// JWT secret — set JWT_SECRET in your .env (or environment) for production.
+// Never commit a real secret to source control.
+const JWT_SECRET = process.env.JWT_SECRET || 'swasth_dev_secret_change_in_prod';
+
 const app = express();
 app.use(cors());
 app.use(express.json());
@@ -160,7 +164,7 @@ app.post("/login", async (req, res) => {
   if (!validPassword) {
     return res.status(400).json({ error: "Invalid password" });
   }
-  const token = jwt.sign({ userId: user.id }, "MY_SECRET_KEY", { expiresIn: "1h" });
+  const token = jwt.sign({ userId: user.id }, JWT_SECRET, { expiresIn: "7d" });
   res.json({ token });
 });
 

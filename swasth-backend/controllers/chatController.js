@@ -504,6 +504,43 @@ exports.assessFeedback = async (req, res) => {
 };
 
 // =============================================================================
+// NEW — getHistory
+// Returns the last 20 completed assessment results for the logged-in user
+// =============================================================================
+
+exports.getHistory = async (req, res) => {
+  try {
+    const userId = req.user?.userId;
+    if (!userId) return res.status(401).json({ error: "Unauthorized" });
+
+    const result = await pool.query(
+      `SELECT
+         ar.id,
+         ar.predicted_disease,
+         ar.confidence,
+         ar.explanation,
+         ar.feedback_type,
+         ar.created_at,
+         a.confirmed_symptoms,
+         a.selected_symptoms
+       FROM assessment_results ar
+       JOIN assessments a ON a.id = ar.assessment_id
+       WHERE ar.user_id = $1
+       ORDER BY ar.created_at DESC
+       LIMIT 20`,
+      [userId]
+    );
+
+    return res.json({ history: result.rows });
+
+  } catch (error) {
+    console.error("getHistory error:", error.message);
+    res.status(500).json({ error: "Failed to fetch history" });
+  }
+};
+
+
+// =============================================================================
 // NEW — assessRecommendations
 // Fetches age + gender from DB, forwards to Flask /assess/recommendations
 // =============================================================================

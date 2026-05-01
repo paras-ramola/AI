@@ -3,11 +3,12 @@ import { CommonModule }  from '@angular/common';
 import { Router }        from '@angular/router';
 import { ChatService }   from '../../services/chat.service';
 import { AssessmentRecommendations } from '../assessment-recommendations/assessment-recommendations';
+import { NearbyFacilitiesComponent } from '../nearby-facilities/nearby-facilities';
 
 @Component({
   selector:    'app-assessment-result',
   standalone:  true,
-  imports:     [CommonModule, AssessmentRecommendations],
+  imports:     [CommonModule, AssessmentRecommendations, NearbyFacilitiesComponent],
   templateUrl: './assessment-result.html',
   styleUrl:    './assessment-result.scss'
 })
@@ -89,6 +90,10 @@ export class AssessmentResult implements OnInit {
 
   formatSymptom(s: string): string {
     return s.replace(/_/g, ' ');
+  }
+
+  viewHistory(): void {
+    this.router.navigate(['/history']);
   }
 
   logout(): void {

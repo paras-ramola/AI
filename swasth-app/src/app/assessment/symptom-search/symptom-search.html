@@ -1,9 +1,9 @@
 <div class="page">
-
   <!-- Header -->
   <div class="header">
     <span class="logo">Swasth</span>
     <div class="header-actions">
+      <button class="btn-ghost" (click)="viewHistory()">My History</button>
       <button class="btn-ghost" (click)="goHome()">Home</button>
       <button class="btn-ghost" (click)="logout()">Logout</button>
     </div>
@@ -11,7 +11,6 @@
 
   <!-- Main content -->
   <div class="search-container">
-
     <div class="search-header">
       <h1>What symptoms are you experiencing?</h1>
       <p>Type a symptom below and select from the matching list</p>
@@ -31,11 +30,7 @@
 
     <!-- Search results dropdown -->
     <div class="search-results" *ngIf="searchResults.length > 0">
-      <div
-        *ngFor="let result of searchResults"
-        class="result-item"
-        (click)="selectSymptom(result)"
-      >
+      <div *ngFor="let result of searchResults" class="result-item" (click)="selectSymptom(result)">
         {{ result.display }}
       </div>
     </div>
@@ -66,6 +61,5 @@
     >
       {{ isStarting ? 'Starting...' : 'Start Assessment →' }}
     </button>
-
   </div>
 </div>

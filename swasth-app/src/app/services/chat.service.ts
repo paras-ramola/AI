@@ -75,4 +75,8 @@ export class ChatService {
   }): Observable<any> {
     return this.http.post(`${this.apiUrl}/assess/recommendations`, payload, { headers: this.headers() });
   }
+
+  getHistory(): Observable<any> {
+    return this.http.get(`${this.apiUrl}/history`, { headers: this.headers() });
+  }
 }

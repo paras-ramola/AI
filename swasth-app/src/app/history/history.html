@@ -1,0 +1,114 @@
+<div class="page">
+
+  <!-- Header -->
+  <div class="header">
+    <button class="logo-btn" (click)="goHome()">
+      <svg class="logo-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M12 21C12 21 3 13.5 3 8.5C3 5.42 5.42 3 8.5 3C10.24 3 11.91 3.81 13 5.08C14.09 3.81 15.76 3 17.5 3C20.58 3 23 5.42 23 8.5C23 13.5 12 21 12 21Z" fill="white" fill-opacity="0.9"/>
+        <path d="M9 10.5H11V8.5H13V10.5H15V12.5H13V14.5H11V12.5H9V10.5Z" fill="#1d4ed8"/>
+      </svg>
+      <span class="logo-text">Swasth</span>
+    </button>
+    <div class="header-actions">
+      <button class="btn-ghost" (click)="startNewAssessment()">+ New Assessment</button>
+      <button class="btn-ghost" (click)="goHome()">Home</button>
+      <button class="btn-ghost" (click)="logout()">Logout</button>
+    </div>
+  </div>
+
+  <div class="history-container">
+
+    <div class="history-heading">
+      <div class="heading-icon"></div>
+      <div>
+        <h1>Assessment History</h1>
+        <p>Your last 20 health assessments</p>
+      </div>
+    </div>
+
+    <!-- Loading -->
+    <div class="loading-state" *ngIf="isLoading">
+      <div class="spinner"></div>
+      <span>Loading your history…</span>
+    </div>
+
+    <!-- Error -->
+    <div class="error-state" *ngIf="!isLoading && error">
+      <span> {{ error }}</span>
+    </div>
+
+    <!-- Empty -->
+    <div class="empty-state" *ngIf="!isLoading && !error && entries.length === 0">
+      <div class="empty-icon">🩺</div>
+      <h3>No assessments yet</h3>
+      <p>Complete your first assessment to see your history here.</p>
+      <button class="start-btn" (click)="startNewAssessment()">Start Assessment →</button>
+    </div>
+
+    <!-- Timeline -->
+    <div class="timeline" *ngIf="!isLoading && !error && entries.length > 0">
+      <div
+        class="timeline-card"
+        *ngFor="let entry of entries; let i = index"
+        [class.expanded]="isExpanded(entry.id)"
+      >
+        <!-- Card header — always visible -->
+        <div class="card-header" (click)="toggle(entry.id)">
+
+          <div class="card-left">
+            <div class="card-date">{{ formatDate(entry.created_at) }}</div>
+            <div class="card-disease">
+              {{ entry.predicted_disease }}
+              <span class="feedback-badge" *ngIf="feedbackIcon(entry.feedback_type)">
+                {{ feedbackIcon(entry.feedback_type) }}
+              </span>
+            </div>
+            <div class="confidence-row">
+              <div class="conf-bar-wrap">
+                <div class="conf-bar-fill" [style.width]="confidencePercent(entry.confidence)"></div>
+              </div>
+              <span class="conf-label">{{ confidencePercent(entry.confidence) }} confidence</span>
+            </div>
+          </div>
+
+          <div class="card-right">
+            <div class="symptom-count">{{ entry.confirmed_symptoms.length }} symptoms</div>
+            <div class="chevron" [class.open]="isExpanded(entry.id)">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                <path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.8"
+                      stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Expanded body -->
+        <div class="card-body" *ngIf="isExpanded(entry.id)">
+
+          <!-- Symptoms chips -->
+          <div class="detail-section" *ngIf="entry.confirmed_symptoms.length > 0">
+            <div class="detail-label">Symptoms Assessed</div>
+            <div class="chips">
+              <span class="chip" *ngFor="let s of entry.confirmed_symptoms">
+                {{ formatSymptom(s) }}
+              </span>
+            </div>
+          </div>
+
+          <!-- Explanation -->
+          <div class="detail-section" *ngIf="entry.explanation">
+            <div class="detail-label">AI Explanation</div>
+            <p class="explanation-text">{{ entry.explanation }}</p>
+          </div>
+
+          <div class="disclaimer-mini">
+             AI-generated — not a substitute for professional medical advice.
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>

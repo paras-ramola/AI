@@ -118,6 +118,10 @@ export class SymptomSearch implements OnInit {
     });
   }
 
+  viewHistory(): void {
+    this.router.navigate(['/history']);
+  }
+
   logout(): void {
     this.auth.logout();              // clears token + UserService profile cache
     this.router.navigate(['/login']);

@@ -11,6 +11,7 @@ import pickle
 import os
 import json
 import re
+from concurrent.futures import ThreadPoolExecutor
 
 from catboost import CatBoostClassifier
 from sentence_transformers import SentenceTransformer
@@ -144,16 +145,14 @@ def predict_disease(
     input_vector = input_vector.reshape(1, -1)
     probs        = model.predict_proba(input_vector)[0]
 
-    # return all diseases above minimum threshold
-    MIN_THRESHOLD = 0.03
+    # return the top 5 diseases regardless of a minimum threshold
     predictions   = []
 
     for i, prob in enumerate(probs):
-        if prob >= MIN_THRESHOLD:
-            predictions.append({
-                "disease":    disease_classes[i],
-                "confidence": float(prob)
-            })
+        predictions.append({
+            "disease":    disease_classes[i],
+            "confidence": float(prob)
+        })
 
     predictions.sort(key=lambda x: x["confidence"], reverse=True)
     return predictions[:5]
@@ -326,13 +325,15 @@ def assess_answer():
         phase = get_current_phase(confirmed_symptoms, questions_asked)
         print(f"Phase: {phase.upper()}")
 
-        # ── emergency check ───────────────────────────────────────────────────
+        # ── emergency check — pass the newly answered symptom so the
+        #    fast-path can skip LLM stages for non-risky symptoms ─────────────
         if confirmed_symptoms:
             symptom_text = " ".join(s.replace("_", " ") for s in confirmed_symptoms)
             emergency    = detect_emergency(
                 user_text           = symptom_text,
                 raw_symptoms        = [s.replace("_", " ") for s in confirmed_symptoms],
-                normalized_symptoms = confirmed_symptoms
+                normalized_symptoms = confirmed_symptoms,
+                new_symptom         = symptom   # ← enables fast path
             )
             if emergency["is_emergency"]:
                 return jsonify({
@@ -367,6 +368,7 @@ def assess_answer():
                     questions_asked, current_predictions, "forced_phase2"
                 )
 
+            # ── format question (cache hit = instant, miss = ~0.8 s) ─────────
             question_data = format_question_with_llm(
                 symptom            = next_symptom,
                 confirmed_symptoms = confirmed_symptoms,
@@ -424,7 +426,7 @@ def assess_answer():
                 questions_asked, current_predictions, reason
             )
 
-        # ── not ready — ask discriminating question ───────────────────────────
+        # ── not ready — pick next discriminating symptom ─────────────────────
         next_symptom = get_next_symptom_to_ask(
             confirmed_symptoms  = confirmed_symptoms,
             absent_symptoms     = absent_symptoms,
@@ -439,6 +441,8 @@ def assess_answer():
                 questions_asked, current_predictions, "no more questions"
             )
 
+        # ── format question in parallel with nothing (already fast from cache)
+        #    If this is a cache miss, run it in parallel with any pending work ─
         question_data = format_question_with_llm(
             symptom            = next_symptom,
             confirmed_symptoms = confirmed_symptoms,

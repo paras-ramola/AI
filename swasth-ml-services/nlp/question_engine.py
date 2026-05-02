@@ -438,6 +438,11 @@ def should_predict(
 # LLM only formats the question — never chooses the symptom
 # =============================================================================
 
+# module-level cache — persists for the lifetime of the Flask process
+# symptom string → {symptom, question, options, phase}
+_QUESTION_CACHE: dict = {}
+
+
 def format_question_with_llm(
     symptom:            str,
     confirmed_symptoms: list,
@@ -448,8 +453,18 @@ def format_question_with_llm(
 
     The symptom to ask about is ALWAYS chosen by the engine above.
     The LLM ONLY formats it into friendly language.
+
+    Results are cached in-process so each symptom is only formatted
+    once — subsequent calls return instantly (~0 ms, 0 API cost).
     """
 
+    # ── Cache hit — return instantly ──────────────────────────────────────────
+    if symptom in _QUESTION_CACHE:
+        cached = _QUESTION_CACHE[symptom].copy()
+        cached["phase"] = phase   # phase can vary but question text doesn't
+        return cached
+
+    # ── Cache miss — call OpenAI ──────────────────────────────────────────────
     confirmed_str    = ", ".join(confirmed_symptoms).replace("_", " ") \
                        if confirmed_symptoms else "none yet"
     symptom_readable = symptom.replace("_", " ")
@@ -482,12 +497,22 @@ Return ONLY the question. Nothing else.
         question = call_openai(prompt, timeout=20).strip()
         question = question.strip('"').strip("'")
 
-        return {
+        result = {
             "symptom":  symptom,
             "question": question,
             "options":  ["Yes", "No", "Not sure"],
             "phase":    phase
         }
+
+        # store in cache (phase omitted from key — question text is universal)
+        _QUESTION_CACHE[symptom] = {
+            "symptom":  symptom,
+            "question": question,
+            "options":  ["Yes", "No", "Not sure"],
+            "phase":    phase
+        }
+
+        return result
 
     except Exception as e:
         print(f"OpenAI question formatting failed: {e}")

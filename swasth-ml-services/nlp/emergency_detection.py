@@ -429,6 +429,39 @@ Respond ONLY with valid JSON. No text outside the JSON.
     
 
 # =============================================================================
+# FAST PRE-FILTER
+# Checks whether a newly added symptom is worth running LLM stages for
+# =============================================================================
+
+def _new_symptom_is_risky(new_symptom: str | None, normalized_symptoms: list) -> bool:
+    """
+    Returns True only if running the two LLM stages is worth doing.
+
+    Conditions for True (any one is enough):
+      1. new_symptom is in the global red-flags set
+      2. new_symptom is None (first call — always run)
+      3. normalized_symptoms contains a red-flag level-1 word
+
+    If False → skip Stages 1 & 2 entirely. The deterministic guard
+    (pure Python, runs in microseconds) already catches real triads.
+    """
+    if new_symptom is None:
+        return True
+
+    # check if the new symptom itself is a known red flag
+    if new_symptom in RED_FLAGS["all"]:
+        return True
+
+    # check if any currently confirmed symptom is a level-1 red flag
+    # (means we're in dangerous territory and should keep checking)
+    symptom_set = set(normalized_symptoms)
+    if symptom_set & RED_FLAGS["level_1"]:
+        return True
+
+    return False
+
+
+# =============================================================================
 # MAIN ENTRY POINT
 # Called from app.py
 # =============================================================================
@@ -436,7 +469,8 @@ Respond ONLY with valid JSON. No text outside the JSON.
 def detect_emergency(
     user_text:           str,
     raw_symptoms:        list,   # from extract_symptoms_llm()
-    normalized_symptoms: list    # from map_symptom() / process_user_text()
+    normalized_symptoms: list,   # from map_symptom() / process_user_text()
+    new_symptom:         str | None = None  # the symptom just answered (used for fast path)
 ) -> dict:
     """
     Two-stage emergency detection.
@@ -447,6 +481,11 @@ def detect_emergency(
                               e.g. ["crushing chest pain", "cannot breathe"]
         normalized_symptoms : embedding-normalized dataset symptoms
                               e.g. ["chest_pain", "breathlessness"]
+        new_symptom         : the symptom name just answered by the user.
+                              When it is not a red-flag keyword the two LLM
+                              stages are skipped (fast path) saving ~2-3 s.
+                              Pass None on the very first call to always run
+                              the full pipeline.
 
     Returns:
         Standardized result dict with is_emergency, message, actions, etc.
@@ -454,14 +493,13 @@ def detect_emergency(
 
     print("\n" + "="*55)
     print("EMERGENCY DETECTION — TWO STAGE AGENT")
-    print(f"User text          : {user_text}")
-    print(f"Raw symptoms       : {raw_symptoms}")
+    print(f"New symptom        : {new_symptom}")
     print(f"Normalized symptoms: {normalized_symptoms}")
     print("="*55)
 
     # ── Pre-LLM deterministic guard ──────────────────────────────────────────
-    # Catches classic high-confidence combos before LLM reasoning can miss them.
-    # These are medically unambiguous triads — no LLM judgment needed.
+    # Catches classic high-confidence combos instantly (pure Python).
+    # Always runs — zero latency, cannot be skipped.
     pre_check = _deterministic_guard(normalized_symptoms)
     if pre_check is not None:
         print(f"Pre-LLM guard triggered: {pre_check['reason']}")
@@ -470,7 +508,27 @@ def detect_emergency(
         pre_check["message"]          = _build_emergency_message(pre_check)
         return pre_check
 
+    # ── Fast path — skip LLM if new symptom is not dangerous ─────────────────
+    # Saves ~2–3 s per answer for non-emergency symptoms.
+    # The deterministic guard above already caught any real triads.
+    if not _new_symptom_is_risky(new_symptom, normalized_symptoms):
+        print(f"Fast path: '{new_symptom}' is not a red-flag — skipping LLM stages")
+        return {
+            "is_emergency":        False,
+            "esi_level":           None,
+            "suspected_condition": None,
+            "confidence":          "high",
+            "reason":              "No emergency indicators detected",
+            "matched_flags":       [],
+            "immediate_actions":   [],
+            "message":             None,
+            "detection_method":    "fast_path",
+            "body_system":         "none",
+        }
+
     # ── Stage 1: Classify body system ────────────────────────────────────────
+    print(f"User text          : {user_text}")
+    print(f"Raw symptoms       : {raw_symptoms}")
     body_system = _classify_body_system(user_text, raw_symptoms)
 
     # ── Stage 2: Emergency agent with focused knowledge ───────────────────────

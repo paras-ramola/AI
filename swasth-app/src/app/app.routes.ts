@@ -22,5 +22,11 @@ export const routes: Routes = [
       import('./assessment/assessment.routes')
         .then(m => m.ASSESSMENT_ROUTES)
   },
+  {
+    path:        'history',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./history/history').then(m => m.HistoryPage)
+  },
   { path: '**', redirectTo: '' }
 ];

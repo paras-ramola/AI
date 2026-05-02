@@ -1,16 +1,15 @@
 <div class="page">
-
   <!-- Header -->
   <div class="header">
     <span class="logo">Swasth</span>
     <div class="header-actions">
+      <button class="btn-ghost" (click)="viewHistory()">My History</button>
       <button class="btn-ghost" (click)="goHome()">Home</button>
       <button class="btn-ghost" (click)="logout()">Logout</button>
     </div>
   </div>
 
   <div class="result-container">
-
     <!-- Top prediction -->
     <div class="top-result">
       <div class="result-icon">🩺</div>
@@ -57,14 +56,28 @@
 
     <!-- Disclaimer -->
     <div class="disclaimer">
-      ⚠️ This is not a medical diagnosis. Please consult a qualified doctor
-      for proper evaluation and treatment.
+      ⚠️ This is not a medical diagnosis. Please consult a qualified doctor for proper evaluation
+      and treatment.
     </div>
 
-    <!-- New assessment -->
-    <button class="new-assessment-btn" (click)="startNewAssessment()">
-      Start new assessment
-    </button>
+    <!-- Personalized Health Plan -->
+    <app-assessment-recommendations
+      *ngIf="predictions.length > 0 && !isLoadingExplanation"
+      [disease]="topDisease"
+      [symptoms]="confirmedSymptoms"
+      [confidence]="topConfidence"
+    >
+    </app-assessment-recommendations>
 
+    <!-- Nearby Facilities Map -->
+    <app-nearby-facilities
+      *ngIf="predictions.length > 0 && !isLoadingExplanation"
+      [disease]="topDisease"
+      [confidence]="topConfidence"
+    >
+    </app-nearby-facilities>
+
+    <!-- New assessment -->
+    <button class="new-assessment-btn" (click)="startNewAssessment()">Start new assessment</button>
   </div>
 </div>

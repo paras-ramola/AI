@@ -106,7 +106,38 @@ export class NearbyFacilitiesComponent implements OnDestroy {
   }
 
   // ── geolocation ───────────────────────────────────────────────────────────
-  private getUserLocation(): Promise<{ lat: number; lon: number }> {
+
+  /**
+   * Try browser geolocation up to 3 times with increasing timeouts.
+   * kCLErrorLocationUnknown (code 2) is a transient macOS Core Location
+   * error that usually resolves on a second attempt with a larger timeout.
+   * If all browser attempts fail, falls back to IP-based geolocation.
+   */
+  private async getUserLocation(): Promise<{ lat: number; lon: number }> {
+    const TIMEOUTS    = [8000, 15000, 20000];
+    let   lastErr: any = new Error('Location unavailable.');
+
+    for (let attempt = 0; attempt < TIMEOUTS.length; attempt++) {
+      try {
+        return await this.tryBrowserGeolocation(TIMEOUTS[attempt]);
+      } catch (err: any) {
+        lastErr = err;
+        if (err?.code === 1) break;   // permission denied — no point retrying
+        console.warn(`[NearbyFacilities] Attempt ${attempt + 1} failed: ${err.message}`);
+      }
+    }
+
+    // All browser attempts exhausted — try IP fallback
+    console.warn('[NearbyFacilities] Falling back to IP-based location…');
+    try {
+      return await this.getLocationByIP();
+    } catch {
+      throw lastErr;
+    }
+  }
+
+  /** Single browser geolocation attempt. */
+  private tryBrowserGeolocation(timeout: number): Promise<{ lat: number; lon: number }> {
     return new Promise((resolve, reject) => {
       if (!navigator.geolocation) {
         reject(new Error('Geolocation is not supported by your browser.'));
@@ -120,11 +151,23 @@ export class NearbyFacilitiesComponent implements OnDestroy {
             2: 'Could not determine your location. Please try again.',
             3: 'Location request timed out. Please try again.',
           };
-          reject(new Error(msgs[err.code] ?? 'Location error.'));
+          const e: any = new Error(msgs[err.code] ?? 'Location error.');
+          e.code = err.code;
+          reject(e);
         },
-        { timeout: 10000, maximumAge: 60000 }
+        { timeout, maximumAge: 60000, enableHighAccuracy: false }
       );
     });
+  }
+
+  /** Coarse IP-based location via ipapi.co (free, no API key needed). */
+  private async getLocationByIP(): Promise<{ lat: number; lon: number }> {
+    const resp = await fetch('https://ipapi.co/json/');
+    if (!resp.ok) throw new Error('IP location service unavailable.');
+    const data = await resp.json();
+    if (!data.latitude || !data.longitude) throw new Error('No coordinates from IP service.');
+    console.info(`[NearbyFacilities] IP location: ${data.city}, ${data.region}`);
+    return { lat: data.latitude, lon: data.longitude };
   }
 
   // ── overpass query ────────────────────────────────────────────────────────
